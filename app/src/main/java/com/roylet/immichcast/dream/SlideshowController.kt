@@ -110,7 +110,13 @@ internal class SlideshowController(
     }
 
     private suspend fun slideLoop(initial: Playlist) {
-        var queue = initial.photos
+        // The cached playlist keeps the order it was shuffled in when built; reshuffle per start
+        // so each screensaver session doesn't open on the same photos.
+        var queue = if (config.effectiveOrder == PlaybackOrder.SHUFFLE) {
+            PlaylistBuilder.applyOrder(initial.photos, PlaybackOrder.SHUFFLE)
+        } else {
+            initial.photos
+        }
         var key = initial.key
         var index = 0
         var failures = 0
@@ -119,18 +125,20 @@ internal class SlideshowController(
         while (true) {
             val slide = next.await()
 
-            // Pick the following item, swapping in a refreshed playlist at the end of a pass.
-            index++
-            if (index >= queue.size) {
+            // Pick the following item. A refreshed playlist takes over straight away rather than
+            // after a full pass, which can take a day for a large library.
+            val shown = queue[index]
+            val fresh = pending?.takeIf { it.photos.isNotEmpty() }
+            pending = null
+            if (fresh != null) {
+                queue = fresh.photos
+                key = fresh.key
+                // Shuffled playlists start on the fresh shuffle; ordered ones carry on after the photo just shown.
+                index = if (config.effectiveOrder == PlaybackOrder.SHUFFLE) 0 else queue.indexOfFirst { it.id == shown.id } + 1
+                if (index >= queue.size) index = 0
+            } else if (++index >= queue.size) {
                 index = 0
-                val fresh = pending
-                pending = null
-                if (fresh != null && fresh.photos.isNotEmpty()) {
-                    queue = fresh.photos
-                    key = fresh.key
-                } else if (config.effectiveOrder == PlaybackOrder.SHUFFLE) {
-                    queue = PlaylistBuilder.applyOrder(queue, PlaybackOrder.SHUFFLE)
-                }
+                if (config.effectiveOrder == PlaybackOrder.SHUFFLE) queue = PlaylistBuilder.applyOrder(queue, PlaybackOrder.SHUFFLE)
             }
             // Season or day rolled over, or the playlist is due a refresh.
             if (key != repo.cacheKey(config) || repo.playlist.value?.let { repo.isStale(it, config) } != false) {
