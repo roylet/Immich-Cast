@@ -136,6 +136,10 @@ Release builds use the debug key unless one of these is provided:
 
 To publish a release, bump `versionName`/`versionCode` in `app/build.gradle.kts`, then either push a matching tag (e.g. `v1.0.1`) or open **Actions → Build → Run workflow**, pick the branch and tick **release**. The workflow tags the commit, creates the GitHub release and attaches the APK.
 
+## License
+
+MIT, see [LICENSE](LICENSE). The bundled Archivo font is under the SIL Open Font License.
+
 ---
 
 Immich Cast is an independent project and is not affiliated with Immich.

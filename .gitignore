@@ -11,3 +11,4 @@ build/
 *.keystore
 keystore.properties
 app/src/test/snapshots/
+*.apk
