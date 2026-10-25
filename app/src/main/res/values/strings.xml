@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Immich Cast</string>
+    <string name="dream_label">Immich Cast</string>
+
+    <!-- Seasons (Southern Hemisphere, meteorological) -->
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_autumn">Autumn</string>
+    <string name="season_winter">Winter</string>
+    <string name="season_all">All photos</string>
+    <string name="season_spring_months">September – November, every year</string>
+    <string name="season_summer_months">December – February, every year</string>
+    <string name="season_autumn_months">March – May, every year</string>
+    <string name="season_winter_months">June – August, every year</string>
+    <string name="season_source_automatic">Current season</string>
+    <string name="season_source_automatic_desc">Follows the calendar and switches automatically</string>
+    <string name="season_all_desc">Your whole library, ignoring seasons</string>
+
+    <!-- Option labels -->
+    <string name="media_images_only">Photos only</string>
+    <string name="media_images_and_videos">Photos and videos</string>
+    <string name="media_videos_desc">Videos play muted, for up to 2 minutes</string>
+    <string name="order_shuffle">Shuffle</string>
+    <string name="order_oldest">Oldest first</string>
+    <string name="order_newest">Newest first</string>
+    <string name="transition_crossfade">Crossfade</string>
+    <string name="transition_ken_burns">Slow zoom</string>
+    <string name="transition_ken_burns_desc">Gentle pan and zoom (Ken Burns effect)</string>
+    <string name="transition_none">None</string>
+    <string name="quality_preview">Standard</string>
+    <string name="quality_preview_desc">Optimised previews, about 1440 px. Fast and light on your network.</string>
+    <string name="quality_full">Full quality</string>
+    <string name="quality_full_desc">Original files, best on 4K TVs. Uses more bandwidth.</string>
+    <string name="fit_blurred">Fit, blurred background</string>
+    <string name="fit_fill">Fill screen (crop)</string>
+    <string name="fit_black">Fit, black bars</string>
+    <string name="overlay_clock">Clock</string>
+    <string name="overlay_date">Date taken</string>
+    <string name="overlay_location">Location</string>
+    <string name="overlay_album">Album name</string>
+    <string name="overlay_description">Description</string>
+    <string name="overlay_season">Season</string>
+    <string name="position_bottom_start">Bottom left</string>
+    <string name="position_bottom_end">Bottom right</string>
+    <string name="position_top_start">Top left</string>
+    <string name="position_top_end">Top right</string>
+    <string name="clock_system">Use system setting</string>
+    <string name="clock_12">12-hour</string>
+    <string name="clock_24">24-hour</string>
+    <string name="value_none">None</string>
+    <string name="value_off">Off</string>
+
+    <!-- Settings: categories and sections -->
+    <string name="category_photos">Photos</string>
+    <string name="category_display">Display</string>
+    <string name="category_overlay">Overlay</string>
+    <string name="category_connection">Connection</string>
+    <string name="category_advanced">Advanced</string>
+    <string name="category_about">About</string>
+    <string name="section_what_to_show">What to show</string>
+    <string name="section_order">Order</string>
+    <string name="section_timing">Timing</string>
+    <string name="section_picture">Picture</string>
+    <string name="section_overlay_items">Show on screen</string>
+    <string name="section_overlay_style">Style</string>
+    <string name="section_server">Server</string>
+    <string name="section_account">Account</string>
+    <string name="section_library">Library</string>
+    <string name="section_reset">Reset</string>
+    <string name="section_screensaver">Screensaver</string>
+    <string name="section_app">App</string>
+
+    <!-- Settings: rows -->
+    <string name="setting_season">Season</string>
+    <string name="setting_season_desc">Photos taken in this season, from every year</string>
+    <string name="setting_excluded_albums">Excluded albums</string>
+    <string name="setting_excluded_albums_desc">Photos in these albums never appear</string>
+    <string name="setting_media">Media</string>
+    <string name="setting_favorites">Favourites only</string>
+    <string name="setting_favorites_desc">Only show photos you have marked as favourite</string>
+    <string name="setting_order">Play order</string>
+    <string name="setting_duration">Time per photo</string>
+    <string name="setting_transition">Transition</string>
+    <string name="setting_quality">Image quality</string>
+    <string name="setting_fit">Image fit</string>
+    <string name="setting_dim">Dim</string>
+    <string name="setting_dim_desc">Darken photos, useful at night</string>
+    <string name="setting_overlay_position">Position</string>
+    <string name="setting_clock_format">Clock format</string>
+    <string name="setting_server_url">Server URL</string>
+    <string name="setting_api_key">API key</string>
+    <string name="setting_refresh_interval">Refresh library every</string>
+    <string name="setting_refresh_interval_desc">How often to look for new photos</string>
+
+    <!-- Actions -->
+    <string name="action_preview">Start preview</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Try again</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_skip">Skip for now</string>
+    <string name="action_get_started">Get started</string>
+    <string name="action_edit_details">Edit details</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="action_test_connection">Test connection</string>
+    <string name="action_run_setup">Run setup again</string>
+    <string name="action_run_setup_desc">Walk through server, key and albums</string>
+    <string name="action_sign_out">Disconnect</string>
+    <string name="action_sign_out_desc">Remove the server, API key and all settings</string>
+    <string name="action_sign_out_confirm">Disconnect from Immich?</string>
+    <string name="action_refresh">Refresh now</string>
+    <string name="action_refresh_desc">Rebuild the photo list from your server</string>
+    <string name="action_clear_cache">Clear cache</string>
+    <string name="action_clear_cache_desc">Delete downloaded photos and rebuild the list</string>
+    <string name="action_reset_display">Restore default settings</string>
+    <string name="action_reset_display_desc">Keeps your server and excluded albums</string>
+
+    <!-- Connection -->
+    <string name="connection_idle">Check that the server and key work</string>
+    <string name="connection_testing">Connecting…</string>
+    <string name="connection_ok">Connected as %1$s · Immich %2$s</string>
+
+    <!-- Status card -->
+    <plurals name="status_photos">
+        <item quantity="one">%s photo</item>
+        <item quantity="other">%s photos</item>
+    </plurals>
+    <plurals name="status_years">
+        <item quantity="one">from %d year</item>
+        <item quantity="other">from %d years</item>
+    </plurals>
+    <string name="status_excluded">%s excluded</string>
+    <string name="status_updated">Updated %s</string>
+    <string name="status_building">Building your slideshow…</string>
+    <string name="status_not_built">Not loaded yet</string>
+    <string name="status_error">Couldn\'t update: %s</string>
+    <string name="status_fallback">Nothing from this season yet, so the whole library is shown</string>
+
+    <!-- Plurals -->
+    <plurals name="albums_count">
+        <item quantity="one">%d album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
+    <plurals name="albums_excluded_count">
+        <item quantity="one">%d album excluded</item>
+        <item quantity="other">%d albums excluded</item>
+    </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%s item</item>
+        <item quantity="other">%s items</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+
+    <!-- Album picker -->
+    <string name="albums_title">Exclude albums</string>
+    <string name="albums_subtitle">Select albums to hide. Their photos are never shown, even if they are also in other albums.</string>
+    <string name="albums_none_excluded">No albums excluded</string>
+    <string name="albums_excluded_badge">Excluded</string>
+    <string name="albums_untitled">Untitled album</string>
+    <string name="albums_empty">You don\'t have any albums yet.</string>
+
+    <!-- Setup -->
+    <string name="setup_tagline">Your Immich photos, season by season, as your TV screensaver.</string>
+    <string name="setup_welcome_title">Welcome</string>
+    <string name="setup_welcome_body">Let\'s connect to your Immich server. It takes about a minute.</string>
+    <string name="setup_welcome_point_seasons">Shows photos from the current season across all your years</string>
+    <string name="setup_welcome_point_exclude">Hide any album you don\'t want on the big screen</string>
+    <string name="setup_welcome_point_private">Talks only to your own server</string>
+    <string name="setup_server_title">Server address</string>
+    <string name="setup_server_hint">The address you use to open Immich, e.g. http://192.168.1.20:2283 or https://photos.example.com</string>
+    <string name="setup_server_placeholder">http://192.168.1.20:2283</string>
+    <string name="setup_key_title">API key</string>
+    <string name="setup_key_body">In Immich, open Account Settings → API Keys and create a key (if you limit permissions: asset.read, asset.view, asset.download, album.read and timeline.read). Tip: use the Google TV app on your phone to paste it.</string>
+    <string name="setup_key_hint">Create a key in Immich under Account Settings → API Keys</string>
+    <string name="setup_key_placeholder">Paste your API key</string>
+    <string name="setup_connecting_title">Connecting…</string>
+    <string name="setup_connecting_body">Checking your server and key.</string>
+    <string name="setup_failed_title">Couldn\'t connect</string>
+    <string name="setup_albums_title">Hide albums</string>
+    <string name="setup_albums_body">Choose any albums whose photos should never appear, like receipts or screenshots. You can change this later.</string>
+    <string name="setup_done_title">You\'re all set</string>
+    <string name="setup_done_body">Your slideshow is ready. Try the preview, or fine-tune what\'s shown in settings.</string>
+
+    <!-- Screensaver status -->
+    <string name="screensaver_active">Immich Cast is your screensaver</string>
+    <string name="screensaver_active_desc">It starts when your TV is idle</string>
+    <string name="screensaver_inactive">Not set as screensaver</string>
+    <string name="screensaver_inactive_desc">Select to check again</string>
+    <string name="screensaver_how_title">Make it your screensaver</string>
+    <string name="screensaver_how_body">Google TV hides third-party screensavers. With developer options and network debugging enabled, run this from a computer once:</string>
+
+    <!-- About -->
+    <string name="about_version">Version %s</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_body">Immich Cast connects only to the server you configure. Your API key and photos never leave your network.</string>
+
+    <!-- Screensaver messages -->
+    <string name="dream_not_setup_title">Immich Cast isn\'t set up yet</string>
+    <string name="dream_not_setup_body">Open the Immich Cast app on your TV to connect your Immich server.</string>
+    <string name="dream_loading_title">Gathering your photos</string>
+    <string name="dream_loading_body">This only takes a moment.</string>
+    <string name="dream_error_title">Can\'t reach Immich</string>
+    <string name="dream_empty_title">No photos to show</string>
+    <string name="dream_empty_body">Check your season and excluded albums in the Immich Cast app.</string>
+    <string name="dream_offline_title">Waiting for your server</string>
+    <string name="dream_offline_body">Photos will resume when the connection is back.</string>
+    <string name="dream_notice_fallback">No %1$s photos yet, so your whole library is shown</string>
+    <string name="preview_hint">Previewing · press any button to exit</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_url">That doesn\'t look like a valid server address.</string>
+    <string name="error_unauthorized">The API key was rejected. Check it in Immich under Account Settings → API Keys.</string>
+    <string name="error_forbidden">The API key is missing permissions. It needs asset.read, asset.view, asset.download, album.read and timeline.read.</string>
+    <string name="error_unreachable">Can\'t reach %1$s. Retrying shortly.</string>
+    <string name="error_unreachable_short">Can\'t reach the server. Check the address and that your TV is on the same network.</string>
+    <string name="error_http">The server returned an error (HTTP %d).</string>
+    <string name="error_bad_response">The server responded unexpectedly. Is this an Immich server?</string>
+    <string name="error_generic">Something went wrong: %s</string>
+</resources>
