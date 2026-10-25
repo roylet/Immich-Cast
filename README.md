@@ -134,7 +134,7 @@ Release builds use the debug key unless one of these is provided:
   - `IMMICH_CAST_KEY_ALIAS`
   - `IMMICH_CAST_KEY_PASSWORD`
 
-Push a tag such as `v1.0.0` to publish a GitHub release with the APK.
+To publish a release, bump `versionName`/`versionCode` in `app/build.gradle.kts`, then either push a matching tag (e.g. `v1.0.1`) or open **Actions → Build → Run workflow**, pick the branch and tick **release**. The workflow tags the commit, creates the GitHub release and attaches the APK.
 
 ---
 
