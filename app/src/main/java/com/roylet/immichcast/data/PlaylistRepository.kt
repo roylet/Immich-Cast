@@ -209,19 +209,22 @@ class PlaylistRepository(
         displayableOnly: Boolean = true,
     ): List<AssetDto> {
         val results = ArrayList<AssetDto>()
-        var page = 1
+        // Immich >= 3.2 pages by cursor; older servers by page number.
+        var page = request.copy(page = 1, cursor = null)
         while (true) {
             val response = try {
-                api.searchMetadata(withVisibility(request.copy(page = page)))
+                api.searchMetadata(withVisibility(page))
             } catch (e: ImmichException.Http) {
                 if (e.code != 400 || legacySearch) throw e
                 legacySearch = true
-                api.searchMetadata(withVisibility(request.copy(page = page)))
+                api.searchMetadata(withVisibility(page))
             }
             val items = response.assets.items
             results += if (displayableOnly) items.filter { it.isDisplayable } else items
-            page = response.assets.nextPage?.toIntOrNull() ?: break
             if (items.isEmpty()) break
+            page = response.assets.nextCursor?.let { page.copy(page = null, cursor = it) }
+                ?: response.assets.nextPage?.toIntOrNull()?.let { page.copy(page = it) }
+                ?: break
         }
         return results
     }

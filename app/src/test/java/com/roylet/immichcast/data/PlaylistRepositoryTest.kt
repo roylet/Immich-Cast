@@ -150,6 +150,24 @@ class PlaylistRepositoryTest {
     }
 
     @Test
+    fun `follows search cursors across pages`() = runTest {
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                if (request.path != "/api/search/metadata") return MockResponse().setResponseCode(404)
+                val body = request.body.readUtf8()
+                searches += body
+                val (id, next) = if ("\"cursor\":\"c2\"" in body) "second" to "null" else "first" to "\"c2\""
+                return MockResponse().setBody(
+                    """{"assets":{"count":1,"items":[{"id":"$id","type":"IMAGE","localDateTime":"2024-01-01T12:00:00.000Z"}],"nextPage":null,"nextCursor":$next}}""",
+                )
+            }
+        }
+        val playlist = repo(LocalDate.of(2026, 10, 25)).refresh(config(mode = SlideshowMode.RANDOM))
+        assertEquals(setOf("first", "second"), playlist.photos.map { it.id }.toSet())
+        assertEquals(2, searches.size)
+    }
+
+    @Test
     fun `cache key moves with the day for date-relative modes`() {
         val recent = config(mode = SlideshowMode.RECENT)
         assertNotEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(recent), repo(LocalDate.of(2026, 10, 4)).cacheKey(recent))

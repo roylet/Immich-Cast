@@ -4,6 +4,8 @@ import com.roylet.immichcast.core.MediaType
 import com.roylet.immichcast.core.Photo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.longOrNull
 
 @Serializable
 data class ServerVersionDto(val major: Int = 0, val minor: Int = 0, val patch: Int = 0) {
@@ -42,7 +44,8 @@ data class AssetDto(
     val isArchived: Boolean = false,
     val isTrashed: Boolean = false,
     val visibility: String? = null,
-    val duration: String? = null,
+    /** Immich 3+ sends milliseconds; older servers send "H:MM:SS.ffffff". */
+    val duration: JsonPrimitive? = null,
     val exifInfo: ExifDto? = null,
 ) {
     /** Hidden/locked/archived/trashed assets never belong in the slideshow. */
@@ -62,7 +65,13 @@ data class AssetDto(
     )
 
     companion object {
-        /** Immich reports durations as "H:MM:SS.ffffff"; "0:00:00.00000" for stills. */
+        fun parseDurationMs(raw: JsonPrimitive?): Long? {
+            if (raw == null) return null
+            if (!raw.isString) return raw.longOrNull?.takeIf { it > 0 }
+            return parseDurationMs(raw.content)
+        }
+
+        /** Immich < 3 reports durations as "H:MM:SS.ffffff"; "0:00:00.00000" for stills. */
         fun parseDurationMs(raw: String?): Long? {
             val parts = raw?.split(":") ?: return null
             if (parts.size != 3) return null
@@ -77,7 +86,9 @@ data class AssetDto(
 
 @Serializable
 data class SearchMetadataRequest(
-    val page: Int = 1,
+    val page: Int? = 1,
+    /** Immich >= 3.2; replaces [page]. */
+    val cursor: String? = null,
     val size: Int = 1000,
     val type: String? = null,
     val takenAfter: String? = null,
@@ -97,6 +108,8 @@ data class SearchAssetPage(
     val count: Int = 0,
     val items: List<AssetDto> = emptyList(),
     val nextPage: String? = null,
+    /** Immich >= 3.2; replaces [nextPage]. */
+    val nextCursor: String? = null,
 )
 
 @Serializable

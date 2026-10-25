@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -67,6 +68,28 @@ class ImmichApiTest {
         assertEquals(MediaType.VIDEO, two.type)
         assertEquals(62_500L, two.durationMs)
         assertEquals(false, page.items[1].isDisplayable)
+    }
+
+    @Test
+    fun `parses immich 3 millisecond durations and cursors`() = runTest {
+        server.enqueue(
+            MockResponse().setBody(
+                """
+                {"albums":{"items":[]},"assets":{"total":2,"count":2,"nextPage":null,"nextCursor":"abc","items":[
+                  {"id":"one","type":"IMAGE","duration":null},
+                  {"id":"two","type":"VIDEO","duration":62500}
+                ]}}
+                """.trimIndent(),
+            ),
+        )
+        val page = api.searchMetadata(SearchMetadataRequest(page = null, cursor = "prev")).assets
+        val body = server.takeRequest().body.readUtf8()
+        assertTrue(body.contains("\"cursor\":\"prev\""))
+        assertFalse(body.contains("\"page\""))
+
+        assertEquals("abc", page.nextCursor)
+        assertNull(page.items[0].toPhoto().durationMs)
+        assertEquals(62_500L, page.items[1].toPhoto().durationMs)
     }
 
     @Test(expected = ImmichException.Unauthorized::class)
