@@ -12,6 +12,7 @@ import com.roylet.immichcast.ImmichCastApp
 import com.roylet.immichcast.R
 import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.api.ImmichException
+import com.roylet.immichcast.core.Hemisphere
 import com.roylet.immichcast.core.ImageFit
 import com.roylet.immichcast.core.ImageQuality
 import com.roylet.immichcast.core.MediaType
@@ -245,12 +246,15 @@ internal class SlideshowController(
             location = listOfNotNull(photo.city, photo.country).distinct().joinToString(", ").ifBlank { null },
             album = album,
             description = photo.description,
-            season = date?.let { seasonCaption(Season.of(it), Seasons.seasonYear(it)) },
+            season = date?.let {
+                val hemisphere = repo.hemisphere(config)
+                seasonCaption(Season.of(it, hemisphere), Seasons.seasonYear(it, hemisphere), hemisphere)
+            },
         )
     }
 
-    private fun seasonCaption(season: Season, year: Int): String {
-        val years = if (season == Season.SUMMER) "$year–%02d".format((year + 1) % 100) else year.toString()
+    private fun seasonCaption(season: Season, year: Int, hemisphere: Hemisphere): String {
+        val years = if (season.spansNewYear(hemisphere)) "$year–%02d".format((year + 1) % 100) else year.toString()
         return "${str(season.labelRes)} $years"
     }
 

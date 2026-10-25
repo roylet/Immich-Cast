@@ -80,7 +80,8 @@ fun SettingsScreen(
     val status by vm.status.collectAsStateWithLifecycle()
     var category by rememberSaveable { mutableStateOf(initialCategory) }
     val context = LocalContext.current
-    val season = remember(config.mode, config.seasonSource) { vm.effectiveSeason(config) }
+    val season = remember(config.mode, config.seasonSource, config.hemisphereSource) { vm.effectiveSeason(config) }
+    val hemisphere = remember(config.hemisphereSource) { vm.hemisphere(config) }
     val railFocus = remember { Category.entries.associateWith { FocusRequester() } }
 
     Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
@@ -105,7 +106,7 @@ fun SettingsScreen(
                     Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
                 }
                 Spacer(Modifier.height(4.dp))
-                StatusCard(status, config, season)
+                StatusCard(status, config, season, hemisphere)
                 Spacer(Modifier.height(6.dp))
                 Category.entries.forEach { item ->
                     BrutalSurface(

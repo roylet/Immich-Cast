@@ -3,15 +3,18 @@
     <string name="app_name">Immich Cast</string>
     <string name="dream_label">Immich Cast</string>
 
-    <!-- Seasons (Southern Hemisphere, meteorological) -->
+    <!-- Seasons (meteorological; the months depend on the hemisphere) -->
     <string name="season_spring">Spring</string>
     <string name="season_summer">Summer</string>
     <string name="season_autumn">Autumn</string>
     <string name="season_winter">Winter</string>
-    <string name="season_spring_months">September – November, every year</string>
-    <string name="season_summer_months">December – February, every year</string>
-    <string name="season_autumn_months">March – May, every year</string>
-    <string name="season_winter_months">June – August, every year</string>
+    <string name="season_months">%1$s – %2$s, every year</string>
+    <string name="setting_hemisphere">Hemisphere</string>
+    <string name="setting_hemisphere_desc">Which months each season covers</string>
+    <string name="hemisphere_automatic">Automatic (%1$s)</string>
+    <string name="hemisphere_automatic_desc">Worked out from the TV\'s time zone</string>
+    <string name="hemisphere_northern">Northern</string>
+    <string name="hemisphere_southern">Southern</string>
     <string name="season_source_automatic">Current season</string>
     <string name="season_source_automatic_desc">Follows the calendar and switches automatically</string>
 

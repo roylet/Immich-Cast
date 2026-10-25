@@ -30,6 +30,13 @@ enum class SeasonSource(val fixedSeason: Season?) {
     WINTER(Season.WINTER),
 }
 
+/** Where seasons come from: worked out from the TV's location, or set by hand. */
+enum class HemisphereSource(val fixed: Hemisphere?) {
+    AUTOMATIC(null),
+    NORTHERN(Hemisphere.NORTHERN),
+    SOUTHERN(Hemisphere.SOUTHERN),
+}
+
 enum class PlaybackOrder { SHUFFLE, OLDEST_FIRST, NEWEST_FIRST }
 
 enum class Transition { CROSSFADE, KEN_BURNS, NONE }
@@ -54,6 +61,7 @@ data class SlideshowConfig(
     val recentDays: Int = DEFAULT_RECENT_DAYS,
     val mediaFilter: MediaFilter = MediaFilter.IMAGES_ONLY,
     val seasonSource: SeasonSource = SeasonSource.AUTOMATIC,
+    val hemisphereSource: HemisphereSource = HemisphereSource.AUTOMATIC,
     val favoritesOnly: Boolean = false,
     val order: PlaybackOrder = PlaybackOrder.SHUFFLE,
     val secondsPerSlide: Int = DEFAULT_SECONDS_PER_SLIDE,
@@ -73,6 +81,9 @@ data class SlideshowConfig(
     val dimPercent: Int = 0,
 ) {
     val isConfigured: Boolean get() = serverUrl.isNotBlank() && apiKey.isNotBlank()
+
+    /** The hemisphere seasons follow, given the one the device appears to be in. */
+    fun hemisphere(detected: Hemisphere): Hemisphere = hemisphereSource.fixed ?: detected
 
     /** Random means shuffled; the other modes follow the chosen order. */
     val effectiveOrder: PlaybackOrder get() = if (mode == SlideshowMode.RANDOM) PlaybackOrder.SHUFFLE else order

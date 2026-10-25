@@ -1,6 +1,7 @@
 package com.roylet.immichcast.data
 
 import com.roylet.immichcast.api.ImmichApi
+import com.roylet.immichcast.core.Hemisphere
 import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowConfig
@@ -66,10 +67,11 @@ class PlaylistRepositoryTest {
     @After
     fun tearDown() = server.shutdown()
 
-    private fun repo(today: LocalDate) = PlaylistRepository(
+    private fun repo(today: LocalDate, hemisphere: Hemisphere = Hemisphere.SOUTHERN) = PlaylistRepository(
         cacheFile = tmp.newFile(),
         apiFor = { ImmichApi(it.serverUrl, OkHttpClient(), it.apiKey) },
         today = { today },
+        detectHemisphere = { hemisphere },
         log = { _, _ -> },
     )
 
@@ -127,6 +129,17 @@ class PlaylistRepositoryTest {
         repo.refresh(winter)
         assertEquals(listOf("winter24"), repo.cached(winter)!!.photos.map { it.id })
         assertEquals(null, repo.cached(config()))
+    }
+
+    @Test
+    fun `a pinned season follows the detected hemisphere`() = runTest {
+        // Northern winter is December to February.
+        val north = repo(LocalDate.of(2026, 10, 25), Hemisphere.NORTHERN)
+        val winter = config(source = SeasonSource.WINTER)
+        assertEquals(listOf("summer23"), north.refresh(winter).photos.map { it.id })
+        // The same day is autumn in the north; the cache tells the hemispheres apart.
+        assertEquals(Season.AUTUMN, north.effectiveSeason(config()))
+        assertNotEquals(north.cacheKey(config()), repo(LocalDate.of(2026, 10, 25)).cacheKey(config()))
     }
 
     @Test

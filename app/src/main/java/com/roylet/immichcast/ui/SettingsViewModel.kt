@@ -98,6 +98,11 @@ class SettingsViewModel(
 
     fun effectiveSeason(config: SlideshowConfig) = repo.effectiveSeason(config)
 
+    fun hemisphere(config: SlideshowConfig) = repo.hemisphere(config)
+
+    /** The hemisphere the TV appears to be in, whatever the setting says. */
+    fun detectedHemisphere() = repo.hemisphere(SlideshowConfig())
+
     fun update(transform: (SlideshowConfig) -> SlideshowConfig) = settings.update(transform)
 
     fun isScreensaverActive(): Boolean = runCatching {

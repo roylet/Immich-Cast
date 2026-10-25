@@ -15,7 +15,7 @@
 
 A screensaver for **Chromecast with Google TV** (and other Android TV / Google TV devices) that shows your [Immich](https://immich.app) photos: **season by season**, **this month** in past years, **at random**, **recent** ones, or **on this day**.
 
-It shows photos from the current season across every year in your library: in spring you see every September–November from every year. You can limit it to **chosen albums**, or **exclude albums**. A photo in an excluded album never appears, even if it is also in another album.
+It shows photos from the current season across every year in your library: in a southern spring you see every September–November from every year. You can limit it to **chosen albums**, or **exclude albums**. A photo in an excluded album never appears, even if it is also in another album.
 
 <p align="center">
   <img src="docs/screenshots/screensaver-overlay.png" width="49%" alt="Screensaver with optional overlay">
@@ -34,14 +34,14 @@ It shows photos from the current season across every year in your library: in sp
   - **Random:** your whole library, shuffled.
   - **Recent:** the last 30 days, 90 days, 6 months or 12 months.
   - **On this day:** the week around today's date in every past year. It changes daily.
-- **Seasons** follow the Southern Hemisphere meteorological calendar:
+- **Seasons** follow the meteorological calendar for your hemisphere, which the app works out from the TV's time zone (you can also set it by hand):
 
-  | Season | Months | Notes |
+  | Season | Southern Hemisphere | Northern Hemisphere |
   |---|---|---|
-  | Spring | Sep–Nov | |
-  | Summer | Dec–Feb | Spans the new year |
-  | Autumn | Mar–May | |
-  | Winter | Jun–Aug | |
+  | Spring | Sep–Nov | Mar–May |
+  | Summer | Dec–Feb (spans the new year) | Jun–Aug |
+  | Autumn | Mar–May | Sep–Nov |
+  | Winter | Jun–Aug | Dec–Feb (spans the new year) |
 
   The season switches automatically, or you can pin one. If the current season, month, recent span or day has no photos yet, the screensaver falls back to your whole library and says so.
 - **Included albums.** Pick albums to limit the slideshow to (family, holidays, pets). Every mode then only uses photos from those albums.
@@ -90,6 +90,7 @@ adb shell settings put secure screensaver_components com.roylet.immichcast/.drea
 |---|---|---|
 | Show | Seasonal, This month, Random, Recent, On this day | Seasonal |
 | Season (Seasonal) | Current season, Spring, Summer, Autumn, Winter | Current season |
+| Hemisphere (Seasonal) | Automatic, Northern, Southern | Automatic, from the TV's time zone |
 | Time span (Recent) | Last 30 days, 90 days, 180 days, 12 months | Last 90 days |
 | Included albums | Any of your albums (owned or shared) | All albums |
 | Excluded albums | Any of your albums (owned or shared) | None |

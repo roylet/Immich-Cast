@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.OpenWith
 import androidx.compose.material.icons.rounded.PhotoAlbum
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Shuffle
@@ -57,6 +58,7 @@ import com.roylet.immichcast.core.MediaFilter
 import com.roylet.immichcast.core.OverlayItem
 import com.roylet.immichcast.core.OverlayPosition
 import com.roylet.immichcast.core.PlaybackOrder
+import com.roylet.immichcast.core.HemisphereSource
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowConfig
 import com.roylet.immichcast.core.SlideshowMode
@@ -75,7 +77,7 @@ import com.roylet.immichcast.ui.components.TextInputDialog
 import com.roylet.immichcast.ui.components.ValueRow
 import com.roylet.immichcast.ui.descriptionRes
 import com.roylet.immichcast.ui.labelRes
-import com.roylet.immichcast.ui.monthsRes
+import com.roylet.immichcast.ui.monthsLabel
 
 @Composable
 private fun <T> ChoiceRow(
@@ -144,10 +146,27 @@ fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onO
                         selected = config.seasonSource,
                         label = { stringResource(it.labelRes) },
                         optionDescription = { source ->
-                            source.fixedSeason?.let { stringResource(it.monthsRes) }
+                            source.fixedSeason?.monthsLabel(vm.hemisphere(config))
                                 ?: stringResource(R.string.season_source_automatic_desc)
                         },
                         onSelect = { v -> vm.update { it.copy(seasonSource = v) } },
+                    )
+                    RowDivider()
+                    val detected = vm.detectedHemisphere()
+                    ChoiceRow(
+                        icon = Icons.Rounded.Public,
+                        title = stringResource(R.string.setting_hemisphere),
+                        description = stringResource(R.string.setting_hemisphere_desc),
+                        options = HemisphereSource.entries,
+                        selected = config.hemisphereSource,
+                        label = { source ->
+                            source.fixed?.let { stringResource(it.labelRes) }
+                                ?: stringResource(R.string.hemisphere_automatic, stringResource(detected.labelRes))
+                        },
+                        optionDescription = { source ->
+                            if (source == HemisphereSource.AUTOMATIC) stringResource(R.string.hemisphere_automatic_desc) else null
+                        },
+                        onSelect = { v -> vm.update { it.copy(hemisphereSource = v) } },
                     )
                 }
                 SlideshowMode.RECENT -> {

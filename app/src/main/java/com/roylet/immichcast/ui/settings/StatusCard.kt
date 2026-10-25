@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.roylet.immichcast.R
+import com.roylet.immichcast.core.Hemisphere
 import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SlideshowConfig
 import com.roylet.immichcast.core.SlideshowMode
@@ -24,7 +25,7 @@ import com.roylet.immichcast.ui.StatusState
 import com.roylet.immichcast.ui.accent
 import com.roylet.immichcast.ui.components.Spinner
 import com.roylet.immichcast.ui.labelRes
-import com.roylet.immichcast.ui.monthsRes
+import com.roylet.immichcast.ui.monthsLabel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.roylet.immichcast.ui.theme.BrutalBadge
@@ -34,7 +35,7 @@ import java.text.NumberFormat
 
 /** Summary of what the screensaver will show right now. */
 @Composable
-fun StatusCard(status: StatusState, config: SlideshowConfig, season: Season?, modifier: Modifier = Modifier) {
+fun StatusCard(status: StatusState, config: SlideshowConfig, season: Season?, hemisphere: Hemisphere, modifier: Modifier = Modifier) {
     val accent = season?.accent ?: config.mode.accent
     val stats = status.playlist?.stats
     val numbers = NumberFormat.getIntegerInstance()
@@ -52,7 +53,7 @@ fun StatusCard(status: StatusState, config: SlideshowConfig, season: Season?, mo
                 if (status.refreshing) Spinner(14.dp, accent)
             }
             val subtitle = when (config.mode) {
-                SlideshowMode.SEASONAL -> season?.let { stringResource(it.monthsRes) }
+                SlideshowMode.SEASONAL -> season?.monthsLabel(hemisphere)
                 SlideshowMode.ON_THIS_DAY -> stringResource(
                     R.string.on_this_day_window,
                     LocalDate.now().format(DateTimeFormatter.ofPattern("d MMMM")),

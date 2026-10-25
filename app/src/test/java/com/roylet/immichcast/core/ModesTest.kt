@@ -50,10 +50,10 @@ class ModesTest {
     @Test
     fun `season only applies to the seasonal mode`() {
         val seasonal = SlideshowConfig()
-        assertEquals(Season.SPRING, Modes.season(seasonal, today))
-        assertEquals(Season.WINTER, Modes.season(seasonal.copy(seasonSource = SeasonSource.WINTER), today))
-        assertNull(Modes.season(seasonal.copy(mode = SlideshowMode.RANDOM), today))
-        assertNull(Modes.season(seasonal.copy(mode = SlideshowMode.RECENT), today))
+        assertEquals(Season.SPRING, Modes.season(seasonal, today, Hemisphere.SOUTHERN))
+        assertEquals(Season.WINTER, Modes.season(seasonal.copy(seasonSource = SeasonSource.WINTER), today, Hemisphere.SOUTHERN))
+        assertNull(Modes.season(seasonal.copy(mode = SlideshowMode.RANDOM), today, Hemisphere.SOUTHERN))
+        assertNull(Modes.season(seasonal.copy(mode = SlideshowMode.RECENT), today, Hemisphere.SOUTHERN))
     }
 
     @Test
@@ -61,5 +61,14 @@ class ModesTest {
         val config = SlideshowConfig(mode = SlideshowMode.RANDOM, order = PlaybackOrder.OLDEST_FIRST)
         assertEquals(PlaybackOrder.SHUFFLE, config.effectiveOrder)
         assertEquals(PlaybackOrder.OLDEST_FIRST, config.copy(mode = SlideshowMode.RECENT).effectiveOrder)
+    }
+
+    @Test
+    fun `the same day is a different season in each hemisphere`() {
+        val seasonal = SlideshowConfig()
+        assertEquals(Season.SPRING, Modes.season(seasonal, today, Hemisphere.SOUTHERN))
+        assertEquals(Season.AUTUMN, Modes.season(seasonal, today, Hemisphere.NORTHERN))
+        assertEquals(Hemisphere.NORTHERN, seasonal.copy(hemisphereSource = HemisphereSource.NORTHERN).hemisphere(Hemisphere.SOUTHERN))
+        assertEquals(Hemisphere.SOUTHERN, seasonal.hemisphere(Hemisphere.SOUTHERN))
     }
 }

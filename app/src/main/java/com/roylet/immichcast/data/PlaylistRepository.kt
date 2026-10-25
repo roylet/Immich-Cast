@@ -6,6 +6,7 @@ import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.api.ImmichException
 import com.roylet.immichcast.api.SearchMetadataRequest
 import com.roylet.immichcast.core.DateRange
+import com.roylet.immichcast.core.Hemisphere
 import com.roylet.immichcast.core.MediaFilter
 import com.roylet.immichcast.core.Modes
 import com.roylet.immichcast.core.Photo
@@ -56,6 +57,8 @@ class PlaylistRepository(
     private val cacheFile: File,
     private val apiFor: (SlideshowConfig) -> ImmichApi,
     private val today: () -> LocalDate = { LocalDate.now() },
+    /** The hemisphere the device is in, for the automatic setting. */
+    private val detectHemisphere: () -> Hemisphere = { Hemisphere.SOUTHERN },
     private val now: () -> Long = { System.currentTimeMillis() },
     private val log: (message: String, error: Throwable?) -> Unit = { message, error -> Log.i(TAG, message, error) },
 ) {
@@ -65,7 +68,9 @@ class PlaylistRepository(
     /** The most recently loaded or built playlist, for status display. */
     val playlist: StateFlow<Playlist?> = latest.asStateFlow()
 
-    fun effectiveSeason(config: SlideshowConfig): Season? = Modes.season(config, today())
+    fun hemisphere(config: SlideshowConfig): Hemisphere = config.hemisphere(detectHemisphere())
+
+    fun effectiveSeason(config: SlideshowConfig): Season? = Modes.season(config, today(), hemisphere(config))
 
     /**
      * Identifies the photo selection. Besides the settings it includes whatever moves with
@@ -73,7 +78,7 @@ class PlaylistRepository(
      */
     fun cacheKey(config: SlideshowConfig): String {
         val moving = when (config.mode) {
-            SlideshowMode.SEASONAL -> effectiveSeason(config)?.name
+            SlideshowMode.SEASONAL -> "${effectiveSeason(config)?.name}@${hemisphere(config).name}"
             SlideshowMode.THIS_MONTH -> today().withDayOfMonth(1).toString()
             SlideshowMode.RECENT, SlideshowMode.ON_THIS_DAY -> today().toString()
             SlideshowMode.RANDOM -> null
@@ -99,6 +104,7 @@ class PlaylistRepository(
     suspend fun refresh(config: SlideshowConfig): Playlist = mutex.withLock {
         val api = apiFor(config)
         val season = effectiveSeason(config)
+        val hemisphere = hemisphere(config)
         val excluded = excludedAssetIds(api, config.excludedAlbumIds)
         var photos = build(api, config, selection(api, config, season), excluded)
         var fellBack = false
@@ -111,7 +117,7 @@ class PlaylistRepository(
             fellBack = true
         }
         val years = if (fellBack || config.mode == SlideshowMode.RANDOM || config.mode == SlideshowMode.RECENT) 0 else {
-            photos.mapNotNull { p -> p.localDate()?.let { if (season != null) Seasons.seasonYear(it) else it.year } }.distinct().size
+            photos.mapNotNull { p -> p.localDate()?.let { if (season != null) Seasons.seasonYear(it, hemisphere) else it.year } }.distinct().size
         }
         val playlist = Playlist(
             key = cacheKey(config),
@@ -144,10 +150,11 @@ class PlaylistRepository(
             SlideshowMode.RANDOM -> null
             SlideshowMode.RECENT -> listOf(Modes.recent(today(), config.recentDays))
             SlideshowMode.SEASONAL -> {
-                val thisSeasonYear = Seasons.seasonYear(today())
-                val years = timelineMonths(api)?.let { Seasons.seasonYearsWithContent(season!!, it) }
+                val hemisphere = hemisphere(config)
+                val thisSeasonYear = Seasons.seasonYear(today(), hemisphere)
+                val years = timelineMonths(api)?.let { Seasons.seasonYearsWithContent(season!!, it, hemisphere) }
                     ?: (thisSeasonYear downTo FALLBACK_FIRST_YEAR).toList()
-                years.filter { it <= thisSeasonYear }.map { Seasons.range(season!!, it) }
+                years.filter { it <= thisSeasonYear }.map { Seasons.range(season!!, it, hemisphere) }
             }
             SlideshowMode.ON_THIS_DAY -> {
                 val years = timelineMonths(api)?.let(Modes::yearsWithContent)

@@ -1,9 +1,13 @@
 package com.roylet.immichcast.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import com.roylet.immichcast.R
 import com.roylet.immichcast.core.ClockFormat
+import com.roylet.immichcast.core.Hemisphere
 import com.roylet.immichcast.core.ImageFit
 import com.roylet.immichcast.core.ImageQuality
 import com.roylet.immichcast.core.MediaFilter
@@ -14,6 +18,7 @@ import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowMode
 import com.roylet.immichcast.core.Transition
+import java.time.format.TextStyle
 
 @get:StringRes
 val Season.labelRes: Int
@@ -24,13 +29,23 @@ val Season.labelRes: Int
         Season.WINTER -> R.string.season_winter
     }
 
+/** E.g. "September – November, every year", in the device's language. */
+@Composable
+fun Season.monthsLabel(hemisphere: Hemisphere): String {
+    val months = months(hemisphere)
+    val locale = LocalConfiguration.current.locales[0]
+    return stringResource(
+        R.string.season_months,
+        months.first().getDisplayName(TextStyle.FULL_STANDALONE, locale),
+        months.last().getDisplayName(TextStyle.FULL_STANDALONE, locale),
+    )
+}
+
 @get:StringRes
-val Season.monthsRes: Int
+val Hemisphere.labelRes: Int
     get() = when (this) {
-        Season.SPRING -> R.string.season_spring_months
-        Season.SUMMER -> R.string.season_summer_months
-        Season.AUTUMN -> R.string.season_autumn_months
-        Season.WINTER -> R.string.season_winter_months
+        Hemisphere.NORTHERN -> R.string.hemisphere_northern
+        Hemisphere.SOUTHERN -> R.string.hemisphere_southern
     }
 
 val Season.accent: Color

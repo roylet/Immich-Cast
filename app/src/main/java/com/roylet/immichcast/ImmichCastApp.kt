@@ -9,6 +9,7 @@ import com.roylet.immichcast.api.ApiKeyInterceptor
 import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.core.SlideshowConfig
 import com.roylet.immichcast.data.AppSettings
+import com.roylet.immichcast.data.HemisphereDetector
 import com.roylet.immichcast.data.PlaylistRepository
 import okhttp3.OkHttpClient
 import java.io.File
@@ -29,7 +30,7 @@ class ImmichCastApp : Application(), ImageLoaderFactory {
     }
 
     val playlists: PlaylistRepository by lazy {
-        PlaylistRepository(File(filesDir, "playlist.json"), ::api)
+        PlaylistRepository(File(filesDir, "playlist.json"), ::api, detectHemisphere = HemisphereDetector::detect)
     }
 
     fun api(config: SlideshowConfig = settings.current): ImmichApi =

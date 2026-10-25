@@ -49,6 +49,7 @@ class AppSettings(context: Context) {
             mode = enumPref(K_MODE, d.mode),
             recentDays = prefs.getInt(K_RECENT, d.recentDays),
             seasonSource = enumPref(K_SEASON, d.seasonSource),
+            hemisphereSource = enumPref(K_HEMISPHERE, d.hemisphereSource),
             favoritesOnly = prefs.getBoolean(K_FAVORITES, d.favoritesOnly),
             order = enumPref(K_ORDER, d.order),
             secondsPerSlide = prefs.getInt(K_SECONDS, d.secondsPerSlide),
@@ -77,6 +78,7 @@ class AppSettings(context: Context) {
         putString(K_MODE, c.mode.name)
         putInt(K_RECENT, c.recentDays)
         putString(K_SEASON, c.seasonSource.name)
+        putString(K_HEMISPHERE, c.hemisphereSource.name)
         putBoolean(K_FAVORITES, c.favoritesOnly)
         putString(K_ORDER, c.order.name)
         putInt(K_SECONDS, c.secondsPerSlide)
@@ -107,6 +109,7 @@ class AppSettings(context: Context) {
         const val K_MODE = "mode"
         const val K_RECENT = "recent_days"
         const val K_SEASON = "season_source"
+        const val K_HEMISPHERE = "hemisphere"
         const val K_FAVORITES = "favorites_only"
         const val K_ORDER = "order"
         const val K_SECONDS = "seconds_per_slide"

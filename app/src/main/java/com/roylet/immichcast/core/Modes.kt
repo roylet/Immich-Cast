@@ -9,9 +9,9 @@ object Modes {
     const val ON_THIS_DAY_WINDOW = 3
 
     /** The season a seasonal slideshow shows today, or null when the mode isn't seasonal. */
-    fun season(config: SlideshowConfig, today: LocalDate): Season? = when {
+    fun season(config: SlideshowConfig, today: LocalDate, hemisphere: Hemisphere): Season? = when {
         config.mode != SlideshowMode.SEASONAL -> null
-        else -> config.seasonSource.fixedSeason ?: Season.of(today)
+        else -> config.seasonSource.fixedSeason ?: Season.of(today, hemisphere)
     }
 
     /** The last [days] days, including today. */
