@@ -3,6 +3,7 @@ package com.roylet.immichcast.ui.settings
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -75,6 +80,7 @@ fun SettingsScreen(
     var category by rememberSaveable { mutableStateOf(initialCategory) }
     val context = LocalContext.current
     val season = remember(config.mode, config.seasonSource) { vm.effectiveSeason(config) }
+    val railFocus = remember { Category.entries.associateWith { FocusRequester() } }
 
     Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
         // Navigation rail
@@ -83,6 +89,10 @@ fun SettingsScreen(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
+                    // Coming back from the detail pane lands on the open category, not whichever
+                    // rail item happens to sit level with the focused row (which would switch panes).
+                    .focusProperties { onEnter = { railFocus.getValue(category).requestFocus() } }
+                    .focusGroup()
                     .background(Palette.Background)
                     .verticalScroll(rememberScrollState())
                     .padding(start = 32.dp, end = 24.dp, top = 28.dp, bottom = 24.dp),
@@ -102,7 +112,11 @@ fun SettingsScreen(
                         selected = item == category,
                         style = BrutalStyle.GHOST,
                         shadow = 3.dp,
-                        modifier = Modifier.fillMaxWidth().padding(end = 4.dp).onFocusChanged { if (it.isFocused) category = item },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 4.dp)
+                            .focusRequester(railFocus.getValue(item))
+                            .onFocusChanged { if (it.isFocused) category = item },
                     ) {
                         Row(Modifier.padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(item.icon, contentDescription = null, modifier = Modifier.size(20.dp))
@@ -118,7 +132,8 @@ fun SettingsScreen(
 
         // Detail pane
         Box(Modifier.weight(1f).fillMaxHeight().padding(horizontal = 40.dp)) {
-            LazyColumn(contentPadding = PaddingValues(top = 28.dp, bottom = 48.dp)) {
+            // Returning from the rail resumes on the row that was focused last.
+            LazyColumn(Modifier.focusRestorer(), contentPadding = PaddingValues(top = 28.dp, bottom = 48.dp)) {
                 item {
                     Row(Modifier.fillMaxWidth().padding(bottom = 2.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(category.label), style = MaterialTheme.typography.headlineMedium, modifier = Modifier.weight(1f))
