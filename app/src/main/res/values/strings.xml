@@ -208,10 +208,10 @@
     <string name="albums_empty">You don\'t have any albums yet.</string>
 
     <!-- Setup -->
-    <string name="setup_tagline">Your Immich photos as your TV screensaver: by season, at random, recent, or on this day.</string>
+    <string name="setup_tagline">Your Immich photos as your TV screensaver: by season, this month, at random, recent, or on this day.</string>
     <string name="setup_welcome_title">Welcome</string>
     <string name="setup_welcome_body">Let\'s connect to your Immich server. It takes about a minute.</string>
-    <string name="setup_welcome_point_seasons">Seasonal, random, recent or on-this-day slideshows</string>
+    <string name="setup_welcome_point_seasons">Seasonal, this month, random, recent or on-this-day slideshows</string>
     <string name="setup_welcome_point_exclude">Hide any album you don\'t want on the big screen</string>
     <string name="setup_welcome_point_private">Talks only to your own server</string>
     <string name="setup_server_title">Server address</string>

@@ -3,11 +3,7 @@ package com.roylet.immichcast.screenshots
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.LinearGradient
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.Shader
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.widget.FrameLayout
 import androidx.compose.foundation.Image
@@ -193,7 +189,7 @@ class ScreenshotTest {
         root.addView(SlideLayer(context).apply { bind(photo, ImageFit.FIT_BLURRED); alpha = 1f })
         root.addView(OverlayView(context).apply {
             configure(SlideshowConfig(overlayItems = setOf(OverlayItem.CLOCK, OverlayItem.DATE, OverlayItem.LOCATION, OverlayItem.SEASON)))
-            setCaption(SlideCaption(date = "5 October 2022", location = "Hobart, Australia", season = "Spring 2022"), animate = false)
+            setCaption(SlideCaption(date = "26 April 2021", location = "Hobart, Australia", season = "Autumn 2021"), animate = false)
         })
         paparazzi.snapshot(root)
     }
@@ -269,22 +265,12 @@ class ScreenshotTest {
         }
     }
 
-    /** A 4:3 landscape "photo" so the blurred letterbox is visible on a 16:9 screen. */
-    private fun samplePhoto(): Bitmap {
-        val w = 1440; val h = 1080
-        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        val c = Canvas(bmp)
-        val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        p.shader = LinearGradient(0f, 0f, 0f, h * 0.7f, intArrayOf(0xFF3B6FB6.toInt(), 0xFFF4B98A.toInt()), null, Shader.TileMode.CLAMP)
-        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), p)
-        p.shader = null
-        p.color = 0xFFFFE1A8.toInt(); c.drawCircle(w * 0.72f, h * 0.38f, 70f, p)
-        p.color = 0xFF2F4858.toInt()
-        c.drawPath(Path().apply { moveTo(0f, h * 0.72f); lineTo(w * 0.3f, h * 0.45f); lineTo(w * 0.55f, h * 0.68f); lineTo(w * 0.75f, h * 0.52f); lineTo(w.toFloat(), h * 0.7f); lineTo(w.toFloat(), h.toFloat()); lineTo(0f, h.toFloat()); close() }, p)
-        p.color = 0xFF5E8C61.toInt()
-        c.drawPath(Path().apply { moveTo(0f, h * 0.85f); quadTo(w * 0.5f, h * 0.72f, w.toFloat(), h * 0.86f); lineTo(w.toFloat(), h.toFloat()); lineTo(0f, h.toFloat()); close() }, p)
-        return bmp
-    }
+    /**
+     * A real 4:3 photo, so the blurred letterbox is visible on a 16:9 screen.
+     * "Pink moon over Derwent, Hobart" by Thomas & Olivia Williams, CC BY 2.0 (credited in the README).
+     */
+    private fun samplePhoto(): Bitmap =
+        javaClass.getResourceAsStream("/sample-photo.jpg")!!.use { BitmapFactory.decodeStream(it) }
 
     private object FakeImmich : Dispatcher() {
         private val albums = listOf(
