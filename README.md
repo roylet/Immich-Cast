@@ -48,82 +48,26 @@ It shows photos from the current season across every year in your library: in sp
 - **Private.** It talks only to your Immich server, nothing else.
 - **Warm, remote-friendly design.** The look is inspired by [ImmichUp](https://github.com/roylet/immichup), softened for a dark TV room: subtle outlines and offset shadows, Archivo type and an orange accent. The focused item gets a warm tint and an orange outline, so you can always see where you are from the sofa.
 
-## Requirements
+## Installation
 
-- Chromecast with Google TV (4K or HD), or any Android TV / Google TV device running Android 12 or later
-- An Immich server your TV can reach. Recent versions are supported, including 1.1xx and 2.x.
-- A computer with [adb](https://developer.android.com/tools/releases/platform-tools), used once for setup
+**👉 Follow the step-by-step guide: [INSTALL.md](INSTALL.md)**
 
-## 1. Get the APK
+It covers downloading the APK, installing adb on Windows, Mac or Linux, turning on developer options on the Chromecast, installing and setting up the app, making it the screensaver, updating, and switching back. Allow about 15 minutes, once.
 
-Download `immich-cast-x.y.z.apk` from the [latest release](../../releases), or from the **immich-cast-apk** artifact of the latest [Build workflow](../../actions/workflows/build.yml) run.
+You'll need:
 
-To build it yourself:
+- a Chromecast with Google TV, or any Google TV / Android TV device on Android 12 or later
+- an Immich server the TV can reach
+- a computer on the same Wi-Fi network
 
-```sh
-./gradlew assembleRelease
-# app/build/outputs/apk/release/app-release.apk
-```
-
-## 2. Create an Immich API key
-
-In Immich, go to **Account Settings → API Keys → New API Key**. If you restrict its permissions, it needs at least:
-
-- `asset.read`, `asset.view`, `asset.download`
-- `album.read`
-- `timeline.read`
-
-## 3. Install on the TV
-
-1. On the TV: **Settings → System → About**, then select **Android TV OS build** 7 times to enable developer options.
-2. **Settings → System → Developer options**: turn on **USB debugging** and **Wireless debugging** (or "Network debugging").
-3. Find the TV's IP address under **Settings → Network & Internet**.
-4. From your computer:
+The short version, if you already know adb:
 
 ```sh
-adb connect 192.168.1.50:5555      # your TV's IP; accept the prompt on the TV
+adb connect <tv-ip>:5555
 adb install immich-cast-1.0.0.apk
-```
-
-## 4. Set it up
-
-Open **Immich Cast** from the TV's apps row. The setup wizard asks for your server address and API key, then lets you pick albums to exclude.
-
-Typing a long API key with a remote is painful. Two easier ways:
-
-- Use the **Google TV app on your phone** as a keyboard and paste the key, or
-- Send it straight from your computer:
-
-  ```sh
-  adb shell am start -n com.roylet.immichcast/.ui.SettingsActivity \
-    --es url "http://192.168.1.20:2283" --es apiKey "YOUR_API_KEY"
-  ```
-
-## 5. Make it your screensaver
-
-Google TV only lists its own screensaver ("Ambient mode") in settings. Pick Immich Cast with one adb command:
-
-```sh
+# open Immich Cast on the TV and connect it to your server, then:
 adb shell settings put secure screensaver_components com.roylet.immichcast/.dream.PhotoDreamService
 ```
-
-Optionally, set how long the TV waits before starting the screensaver. The value is in milliseconds; this is 5 minutes:
-
-```sh
-adb shell settings put system screen_off_timeout 300000
-```
-
-The app's **About** page shows a tick once it is the active screensaver.
-
-**To go back** to Google's Ambient mode:
-
-```sh
-adb shell settings put secure screensaver_components com.google.android.apps.tv.dreamx/.service.Backdrop
-```
-
-You may want to run `adb shell settings get secure screensaver_components` *before* changing it, so you know the exact original value on your device.
-
-> Some Google TV updates reset this setting. If Ambient mode comes back, run the command again.
 
 ## Settings reference
 
@@ -160,11 +104,11 @@ Archived, hidden, locked and trashed photos are never shown. The list is cached 
 ## Development
 
 ```sh
+./gradlew assembleRelease        # APK at app/build/outputs/apk/release/app-release.apk
 ./gradlew testDebugUnitTest      # unit tests and screenshot rendering
 ./gradlew lintDebug
 ./gradlew recordPaparazziDebug   # re-render UI screenshots to app/src/test/snapshots
 node art/render.js               # regenerate the TV banner and screensaver preview from art/banner.html
-./gradlew assembleRelease
 ```
 
 The code lives in `app/src/main/java/com/roylet/immichcast/`:
