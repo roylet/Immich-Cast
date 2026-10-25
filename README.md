@@ -41,6 +41,7 @@ It shows photos from the current season across every year in your library: in sp
 - **No clutter by default.** The overlay is off. Turn on any of: clock, date taken, location, album name, description, season.
 - **Fast and resilient.** The photo list is cached on the device, so the screensaver starts at once and keeps working through Wi-Fi blips. The next photo is preloaded and decoded before it is shown.
 - **Private.** It talks only to your Immich server, nothing else.
+- **Bold, remote-friendly design.** The settings UI shares [ImmichUp](https://github.com/roylet/immichup)'s neo-brutalist look in a dark, TV-friendly variant: thick outlines, hard shadows, Archivo type and an orange accent. The focused item turns solid orange, so you can always see where you are from the sofa.
 
 ## Requirements
 
@@ -170,7 +171,7 @@ The code lives in `app/src/main/java/com/roylet/immichcast/`:
 | `dream/` | The screensaver: `DreamService`, slideshow view, transitions, overlay |
 | `ui/` | Settings and setup wizard, built with Compose for TV |
 
-The app's TV banner is drawn in `art/banner.html` and rendered to PNGs by `art/render.js` (uses Playwright). The launcher icon is pure vector: `res/drawable/ic_launcher_*.xml`.
+The app's TV banner is drawn in `art/banner.html` and rendered to PNGs by `art/render.js` (uses Playwright). The launcher icon is pure vector: `res/drawable/ic_launcher_*.xml`. The theme's colours and brutalist building blocks (hard shadows, outlined cards, focus states) live in `ui/theme/`. The Archivo font is bundled under the SIL Open Font License (`licenses/Archivo-OFL.txt`).
 
 ### Release signing
 

@@ -6,17 +6,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Link
@@ -40,16 +42,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
-import androidx.tv.material3.DenseListItem
-import androidx.tv.material3.ListItemDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.roylet.immichcast.R
 import com.roylet.immichcast.ui.PreviewActivity
 import com.roylet.immichcast.ui.SettingsViewModel
+import com.roylet.immichcast.ui.theme.BrutalButton
+import com.roylet.immichcast.ui.theme.BrutalStyle
+import com.roylet.immichcast.ui.theme.BrutalSurface
+import com.roylet.immichcast.ui.theme.Palette
+import com.roylet.immichcast.ui.theme.dotGrid
 
 enum class Category(val icon: ImageVector, val label: Int) {
     PHOTOS(Icons.Rounded.PhotoLibrary, R.string.category_photos),
@@ -73,55 +76,57 @@ fun SettingsScreen(
     val context = LocalContext.current
     val season = remember(config.seasonSource) { vm.effectiveSeason(config) }
 
-    Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
         // Navigation rail
-        Column(
-            Modifier
-                .width(320.dp)
-                .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.surface)
-                .verticalScroll(rememberScrollState())
-                .padding(start = 32.dp, end = 20.dp, top = 28.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(painterResource(R.drawable.ic_logo), contentDescription = null, modifier = Modifier.size(36.dp))
-                Spacer(Modifier.width(12.dp))
-                Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge)
+        Row(Modifier.width(332.dp).fillMaxHeight()) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(Palette.Background)
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 32.dp, end = 24.dp, top = 28.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(painterResource(R.drawable.ic_logo), contentDescription = null, modifier = Modifier.size(40.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
+                }
+                Spacer(Modifier.height(4.dp))
+                StatusCard(status, season)
+                Spacer(Modifier.height(6.dp))
+                Category.entries.forEach { item ->
+                    BrutalSurface(
+                        onClick = { category = item },
+                        selected = item == category,
+                        style = BrutalStyle.GHOST,
+                        shadow = 3.dp,
+                        modifier = Modifier.fillMaxWidth().padding(end = 4.dp).onFocusChanged { if (it.isFocused) category = item },
+                    ) {
+                        Row(Modifier.padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(item.icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(12.dp))
+                            Text(stringResource(item.label).uppercase(), style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                }
             }
-            Spacer(Modifier.size(14.dp))
-            StatusCard(status, season)
-            Spacer(Modifier.size(10.dp))
-            Category.entries.forEach { item ->
-                DenseListItem(
-                    selected = item == category,
-                    onClick = { category = item },
-                    leadingContent = { Icon(item.icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                    headlineContent = { Text(stringResource(item.label)) },
-                    colors = ListItemDefaults.colors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    shape = ListItemDefaults.shape(MaterialTheme.shapes.medium),
-                    modifier = Modifier.onFocusChanged { if (it.isFocused) category = item },
-                )
-            }
+            // Hard vertical rule between rail and content.
+            Box(Modifier.width(2.dp).fillMaxHeight().background(Palette.Ink))
         }
 
         // Detail pane
         Box(Modifier.weight(1f).fillMaxHeight().padding(horizontal = 40.dp)) {
-            LazyColumn(contentPadding = androidx.compose.foundation.layout.PaddingValues(top = 32.dp, bottom = 48.dp)) {
+            LazyColumn(contentPadding = PaddingValues(top = 28.dp, bottom = 48.dp)) {
                 item {
-                    Row(Modifier.fillMaxWidth().padding(start = 16.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(bottom = 2.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(category.label), style = MaterialTheme.typography.headlineMedium, modifier = Modifier.weight(1f))
-                        Button(
+                        BrutalButton(
+                            text = stringResource(R.string.action_preview),
                             onClick = { context.startActivity(Intent(context, PreviewActivity::class.java)) },
-                            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                        ) {
-                            Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                            Text(stringResource(R.string.action_preview))
-                        }
+                            icon = { Icon(Icons.Rounded.PlayArrow, contentDescription = null) },
+                        )
                     }
                 }
                 when (category) {

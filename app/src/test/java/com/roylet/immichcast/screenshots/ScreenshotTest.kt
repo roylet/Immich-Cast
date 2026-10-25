@@ -21,22 +21,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.roylet.immichcast.R
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.android.resources.Density
 import com.android.resources.ScreenOrientation
 import com.android.resources.UiMode
+import com.roylet.immichcast.R
 import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.core.ImageFit
 import com.roylet.immichcast.core.OverlayItem
@@ -49,10 +54,20 @@ import com.roylet.immichcast.dream.SlideLayer
 import com.roylet.immichcast.ui.AlbumPickerScreen
 import com.roylet.immichcast.ui.AlbumsState
 import com.roylet.immichcast.ui.SettingsViewModel
+import com.roylet.immichcast.ui.components.CheckRow
+import com.roylet.immichcast.ui.components.RowDivider
+import com.roylet.immichcast.ui.components.SettingsSection
+import com.roylet.immichcast.ui.components.SwitchRow
+import com.roylet.immichcast.ui.components.ValueRow
 import com.roylet.immichcast.ui.settings.Category
 import com.roylet.immichcast.ui.settings.SettingsScreen
 import com.roylet.immichcast.ui.setup.SetupWizard
+import com.roylet.immichcast.ui.theme.BrutalBadge
+import com.roylet.immichcast.ui.theme.BrutalButton
+import com.roylet.immichcast.ui.theme.BrutalStyle
 import com.roylet.immichcast.ui.theme.ImmichCastTheme
+import com.roylet.immichcast.ui.theme.Palette
+import com.roylet.immichcast.ui.theme.dotGrid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -174,6 +189,37 @@ class ScreenshotTest {
             setCaption(SlideCaption(date = "5 October 2022", location = "Hobart, Australia", season = "Spring 2022"), animate = false)
         })
         paparazzi.snapshot(root)
+    }
+
+    /** Focus and toggle states of the brutalist controls, which only show up when a remote moves focus. */
+    @Test
+    fun focusStates() {
+        paparazzi.snapshot {
+            ImmichCastTheme {
+                val focus = remember { FocusRequester() }
+                Column(
+                    Modifier.fillMaxSize().background(Palette.Background).dotGrid().padding(48.dp).width(640.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                ) {
+                    SettingsSection("Focused row") {
+                        ValueRow(null, "Time per photo", "30 seconds", onClick = {}, modifier = Modifier.focusRequester(focus),
+                            description = "Focused rows turn orange")
+                        RowDivider()
+                        SwitchRow(null, "Toggle on", checked = true, onCheckedChange = {})
+                        RowDivider()
+                        SwitchRow(null, "Toggle off", checked = false, onCheckedChange = {})
+                        RowDivider()
+                        CheckRow("Selected option", checked = true, onClick = {})
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        BrutalButton("Primary", onClick = {})
+                        BrutalButton("Outline", onClick = {}, style = BrutalStyle.OUTLINE)
+                        BrutalBadge("Spring", Color(0xFF8BD17C))
+                    }
+                }
+                LaunchedEffect(Unit) { focus.requestFocus() }
+            }
+        }
     }
 
     /** The home-screen banner in a mock Google TV apps row, plus the launcher icon under common masks. */

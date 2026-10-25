@@ -4,9 +4,9 @@ import android.app.Application
 import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.lifecycle.viewModelScope
 import com.roylet.immichcast.ImmichCastApp
 import com.roylet.immichcast.R
 import com.roylet.immichcast.api.AlbumDto

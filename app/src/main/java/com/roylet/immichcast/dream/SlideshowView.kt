@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.OptIn
+import androidx.core.content.res.ResourcesCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -61,11 +62,11 @@ class SlideshowView(context: Context) : FrameLayout(context) {
     private val overlay = OverlayView(context)
     private val dim = View(context).apply { setBackgroundColor(Color.BLACK); alpha = 0f }
 
-    private val messageTitle = text(26f, Typeface.create("sans-serif-medium", Typeface.NORMAL), 1f)
+    private val messageTitle = text(28f, ResourcesCompat.getFont(context, R.font.archivo_black), 1f)
     private val messageBody = text(17f, null, 0.72f).apply { maxWidth = dp(560) }
     private val messageSpinner = ProgressBar(context).apply {
         isIndeterminate = true
-        indeterminateTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
+        indeterminateTintList = android.content.res.ColorStateList.valueOf(Color.rgb(255, 90, 31))
     }
     private val message = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
@@ -78,12 +79,16 @@ class SlideshowView(context: Context) : FrameLayout(context) {
         visibility = View.GONE
     }
 
-    private val notice = text(15f, null, 1f).apply {
+    // Brutalist tag, matching the settings UI: outlined, square-ish, uppercase Archivo.
+    private val notice = text(13f, ResourcesCompat.getFont(context, R.font.archivo_extrabold), 1f).apply {
         background = GradientDrawable().apply {
-            cornerRadius = dp(24).toFloat()
-            setColor(Color.argb(170, 20, 20, 24))
+            cornerRadius = dp(4).toFloat()
+            setColor(Color.argb(230, 31, 29, 26))
+            setStroke(dp(2), Color.rgb(243, 235, 221))
         }
-        setPadding(dp(20), dp(10), dp(20), dp(10))
+        isAllCaps = true
+        letterSpacing = 0.08f
+        setPadding(dp(18), dp(10), dp(18), dp(10))
         alpha = 0f
     }
 

@@ -7,8 +7,11 @@
 <style>
   html, body { margin: 0; width: 320px; height: 180px; overflow: hidden; background: #0b0d12; }
   svg { display: block; }
-  .name { font: 700 27px/1 'DejaVu Sans', 'Roboto', sans-serif; letter-spacing: -0.6px; fill: #ffffff; }
-  .tag { font: 500 10.5px/1 'DejaVu Sans', 'Roboto', sans-serif; letter-spacing: 1.6px; fill: rgba(255,255,255,0.78); }
+  /* Archivo is bundled with the app (res/font, OFL licence in licenses/). */
+  @font-face { font-family: Archivo; font-weight: 900; src: url('../app/src/main/res/font/archivo_black.ttf'); }
+  @font-face { font-family: Archivo; font-weight: 800; src: url('../app/src/main/res/font/archivo_extrabold.ttf'); }
+  .name { font: 900 19px/1 Archivo, sans-serif; letter-spacing: -0.4px; fill: #111111; }
+  .tag { font: 800 8.5px/1 Archivo, sans-serif; letter-spacing: 0.9px; fill: #111111; }
 </style>
 </head>
 <body>
@@ -26,20 +29,11 @@
     <linearGradient id="sky-autumn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7744a"/><stop offset="1" stop-color="#f7c58c"/></linearGradient>
     <linearGradient id="sky-winter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb7e6"/><stop offset="1" stop-color="#e3efff"/></linearGradient>
 
-    <!-- Darkens the left side so the name always reads. -->
-    <linearGradient id="scrim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#090b12" stop-opacity="0"/>
-      <stop offset="0.45" stop-color="#090b12" stop-opacity="0.62"/>
-      <stop offset="1" stop-color="#090b12" stop-opacity="0.92"/>
-    </linearGradient>
     <linearGradient id="vignette" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#000" stop-opacity="0.18"/>
       <stop offset="0.5" stop-color="#000" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity="0.35"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1.2" stdDeviation="1.6" flood-color="#000" flood-opacity="0.55"/>
-    </filter>
   </defs>
 
   <!-- Spring: blossom tree on green hills -->
@@ -89,30 +83,34 @@
     <g fill="#ffffff"><circle cx="246" cy="40" r="1.4"/><circle cx="280" cy="30" r="1.2"/><circle cx="300" cy="56" r="1.4"/><circle cx="262" cy="62" r="1"/><circle cx="312" cy="22" r="1.1"/></g></g>
   </g>
 
-  <!-- Seams between seasons -->
-  <g stroke="#0b0d12" stroke-opacity="0.55" stroke-width="2">
+  <!-- Thick black seams between seasons (brutalist outlines) -->
+  <g stroke="#111111" stroke-width="3.5">
     <line x1="98" y1="0" x2="74" y2="180"/><line x1="178" y1="0" x2="154" y2="180"/><line x1="258" y1="0" x2="234" y2="180"/>
   </g>
-
   <rect width="320" height="180" fill="url(#vignette)"/>
-  <rect y="84" width="320" height="96" fill="url(#scrim)"/>
+  <rect x="1.5" y="1.5" width="317" height="177" fill="none" stroke="#111111" stroke-width="3"/>
 
-  <!-- Logo: four-season ring around a photo glyph (same geometry as ic_logo.xml) -->
-  <g transform="translate(20 117) scale(0.98)" filter="url(#shadow)">
-    <circle cx="24" cy="24" r="17" fill="#0b0d12" fill-opacity="0.55"/>
-    <g fill="none" stroke-width="4.2" stroke-linecap="round">
-      <path d="M25.491,5.059 A19,19 0 0,1 42.941,22.509" stroke="#8BD17C"/>
-      <path d="M42.941,25.491 A19,19 0 0,1 25.491,42.941" stroke="#FFC857"/>
-      <path d="M22.509,42.941 A19,19 0 0,1 5.059,25.491" stroke="#F08A4B"/>
-      <path d="M5.059,22.509 A19,19 0 0,1 22.509,5.059" stroke="#8EC5FF"/>
-    </g>
-    <path d="M13.5,31.5 L20.5,21.5 L25.5,27.8 L28.6,24.2 L34.5,31.5 Z" fill="#ffffff"/>
-    <circle cx="30.8" cy="17.2" r="2.6" fill="#FFC857"/>
+  <!-- Tag, top left -->
+  <g transform="translate(16 15)">
+    <rect x="2.5" y="2.5" width="152" height="20" rx="2" fill="#111111"/>
+    <rect width="152" height="20" rx="2" fill="#FF5A1F" stroke="#111111" stroke-width="2"/>
+    <text class="tag" x="76" y="13.6" text-anchor="middle">SEASONAL SCREENSAVER</text>
   </g>
 
-  <g filter="url(#shadow)">
-    <text class="name" x="74" y="146">Immich Cast</text>
-    <text class="tag" x="75" y="162">SEASONAL SCREENSAVER</text>
+  <!-- Title block: cream card, black outline, hard shadow -->
+  <g transform="translate(16 113)">
+    <rect x="4" y="4" width="206" height="50" rx="3" fill="#111111"/>
+    <rect width="206" height="50" rx="3" fill="#FFF7EA" stroke="#111111" stroke-width="2.5"/>
+    <!-- Logo tile (same geometry as res/drawable/ic_logo.xml) -->
+    <g transform="translate(3 2) scale(0.98)">
+      <path d="M17,11 H35 A6,6 0 0 1 41,17 V35 A6,6 0 0 1 35,41 H17 A6,6 0 0 1 11,35 V17 A6,6 0 0 1 17,11 Z" fill="#FF5A1F"/>
+      <path d="M14,8 H32 A6,6 0 0 1 38,14 V32 A6,6 0 0 1 32,38 H14 A6,6 0 0 1 8,32 V14 A6,6 0 0 1 14,8 Z" fill="#FFF7EA" stroke="#111111" stroke-width="2.4"/>
+      <path d="M16,14.5 H30 A2,2 0 0 1 32,16.5 V26.5 A2,2 0 0 1 30,28.5 H16 A2,2 0 0 1 14,26.5 V16.5 A2,2 0 0 1 16,14.5 Z" fill="none" stroke="#111111" stroke-width="2.3"/>
+      <path d="M16.8,26 L20.8,20.6 L23.9,24.3 L25.9,22.2 L29.2,26 Z" fill="#111111"/>
+      <circle cx="27.4" cy="18.6" r="1.7" fill="#FF5A1F"/>
+      <path d="M19.5,33 H26.5" stroke="#111111" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <text class="name" x="53" y="32.5">IMMICH CAST</text>
   </g>
 </svg>
 </body>

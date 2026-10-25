@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +21,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -45,21 +47,25 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import com.roylet.immichcast.R
-import com.roylet.immichcast.ui.ConnectionState
 import com.roylet.immichcast.ui.AlbumPicker
+import com.roylet.immichcast.ui.ConnectionState
 import com.roylet.immichcast.ui.PreviewActivity
 import com.roylet.immichcast.ui.SettingsViewModel
 import com.roylet.immichcast.ui.components.CodeBlock
 import com.roylet.immichcast.ui.components.Spinner
 import com.roylet.immichcast.ui.components.TvTextField
 import com.roylet.immichcast.ui.settings.screensaverCommand
+import com.roylet.immichcast.ui.theme.BrutalBadge
+import com.roylet.immichcast.ui.theme.BrutalButton
+import com.roylet.immichcast.ui.theme.BrutalCard
+import com.roylet.immichcast.ui.theme.BrutalStyle
 import com.roylet.immichcast.ui.theme.Palette
+import com.roylet.immichcast.ui.theme.dotGrid
+import com.roylet.immichcast.ui.theme.hardShadow
 
 private enum class Step { WELCOME, SERVER, KEY, CONNECT, ALBUMS, DONE }
 
@@ -85,25 +91,27 @@ fun SetupWizard(vm: SettingsViewModel, onFinished: () -> Unit, onCancel: (() -> 
         }
     }
 
-    Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        // Hero panel
+    Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
+        // Hero panel in ImmichUp orange
         Column(
             Modifier
-                .width(360.dp)
+                .width(380.dp)
                 .fillMaxHeight()
-                .background(Brush.verticalGradient(listOf(Palette.Primary.copy(alpha = 0.22f), MaterialTheme.colorScheme.surface)))
+                .background(Palette.Primary)
+                .dotGrid(Palette.OnPrimary.copy(alpha = 0.12f))
                 .padding(48.dp),
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(painterResource(R.drawable.ic_logo), contentDescription = null, modifier = Modifier.size(84.dp))
-            Spacer(Modifier.height(24.dp))
-            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displaySmall)
-            Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.setup_tagline), style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Image(painterResource(R.drawable.ic_logo_ink), contentDescription = null, modifier = Modifier.size(88.dp))
+            Spacer(Modifier.height(28.dp))
+            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displayMedium, color = Palette.OnPrimary)
+            Spacer(Modifier.height(10.dp))
+            Text(stringResource(R.string.setup_tagline), style = MaterialTheme.typography.titleSmall,
+                color = Palette.OnPrimary.copy(alpha = 0.8f))
             Spacer(Modifier.height(40.dp))
             StepIndicator(step.ordinal, Step.entries.size)
         }
+        Box(Modifier.width(2.dp).fillMaxHeight().background(Palette.OnPrimary))
 
         Box(Modifier.weight(1f).fillMaxHeight().padding(horizontal = 64.dp, vertical = 48.dp), contentAlignment = Alignment.CenterStart) {
             AnimatedContent(targetState = step, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "step") { current ->
@@ -112,6 +120,7 @@ fun SetupWizard(vm: SettingsViewModel, onFinished: () -> Unit, onCancel: (() -> 
                     Step.SERVER -> TextStep(
                         title = stringResource(R.string.setup_server_title),
                         body = stringResource(R.string.setup_server_hint),
+                        number = 1,
                         initial = url,
                         placeholder = stringResource(R.string.setup_server_placeholder),
                         keyboardType = KeyboardType.Uri,
@@ -120,6 +129,7 @@ fun SetupWizard(vm: SettingsViewModel, onFinished: () -> Unit, onCancel: (() -> 
                     Step.KEY -> TextStep(
                         title = stringResource(R.string.setup_key_title),
                         body = stringResource(R.string.setup_key_body),
+                        number = 2,
                         initial = key,
                         placeholder = stringResource(R.string.setup_key_placeholder),
                         keyboardType = KeyboardType.Password,
@@ -136,19 +146,20 @@ fun SetupWizard(vm: SettingsViewModel, onFinished: () -> Unit, onCancel: (() -> 
                     Step.ALBUMS -> AlbumPicker(
                         vm,
                         header = {
-                            StepHeader(stringResource(R.string.setup_albums_title), stringResource(R.string.setup_albums_body))
+                            StepHeader(stringResource(R.string.setup_albums_title), stringResource(R.string.setup_albums_body), number = 3)
                         },
                         footer = {
                             val count = config.excludedAlbumIds.size
                             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Button(onClick = { step = Step.DONE }) {
-                                    Text(stringResource(if (count == 0) R.string.action_skip else R.string.action_continue))
-                                }
-                                Spacer(Modifier.width(16.dp))
-                                Text(
+                                BrutalButton(
+                                    stringResource(if (count == 0) R.string.action_skip else R.string.action_continue),
+                                    onClick = { step = Step.DONE },
+                                )
+                                Spacer(Modifier.width(20.dp))
+                                BrutalBadge(
                                     if (count == 0) stringResource(R.string.albums_none_excluded)
                                     else pluralStringResource(R.plurals.albums_excluded_count, count, count),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    if (count == 0) Palette.Ink else Palette.Destructive,
                                 )
                             }
                         },
@@ -166,22 +177,32 @@ private fun StepIndicator(current: Int, total: Int) {
         repeat(total) { i ->
             Box(
                 Modifier
-                    .height(6.dp)
-                    .width(if (i == current) 28.dp else 6.dp)
-                    .background(
-                        if (i <= current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.border,
-                        CircleShape,
-                    ),
+                    .size(if (i == current) 32.dp else 14.dp, 14.dp)
+                    .background(if (i <= current) Palette.OnPrimary else Color.Transparent, RoundedCornerShape(2.dp))
+                    .border(2.dp, Palette.OnPrimary, RoundedCornerShape(2.dp)),
             )
         }
     }
 }
 
+/** Title with ImmichUp's numbered square, plus a description. */
 @Composable
-private fun StepHeader(title: String, body: String) {
-    Column(Modifier.padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
-        Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun StepHeader(title: String, body: String, number: Int? = null) {
+    Column(Modifier.padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            number?.let {
+                Box(
+                    Modifier.size(34.dp).hardShadow(3.dp).background(Palette.Primary, RoundedCornerShape(3.dp))
+                        .border(2.dp, Palette.Ink, RoundedCornerShape(3.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(it.toString(), style = MaterialTheme.typography.titleMedium, color = Palette.OnPrimary)
+                }
+                Spacer(Modifier.width(16.dp))
+            }
+            Text(title, style = MaterialTheme.typography.headlineMedium)
+        }
+        Text(body, style = MaterialTheme.typography.bodyLarge, color = Palette.TextMuted, modifier = Modifier.widthIn(max = 640.dp))
     }
 }
 
@@ -193,8 +214,8 @@ private fun Welcome(onStart: () -> Unit) {
         Bullet(stringResource(R.string.setup_welcome_point_seasons))
         Bullet(stringResource(R.string.setup_welcome_point_exclude))
         Bullet(stringResource(R.string.setup_welcome_point_private))
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = onStart, modifier = Modifier.focusRequester(focus)) { Text(stringResource(R.string.action_get_started)) }
+        Spacer(Modifier.height(10.dp))
+        BrutalButton(stringResource(R.string.action_get_started), onClick = onStart, modifier = Modifier.focusRequester(focus))
     }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 }
@@ -202,9 +223,14 @@ private fun Welcome(onStart: () -> Unit) {
 @Composable
 private fun Bullet(text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Rounded.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(12.dp))
-        Text(text, style = MaterialTheme.typography.bodyLarge)
+        Box(
+            Modifier.size(24.dp).background(Palette.Primary, RoundedCornerShape(3.dp)).border(2.dp, Palette.Ink, RoundedCornerShape(3.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.Rounded.Check, contentDescription = null, tint = Palette.OnPrimary, modifier = Modifier.size(16.dp))
+        }
+        Spacer(Modifier.width(14.dp))
+        Text(text, style = MaterialTheme.typography.titleSmall)
     }
 }
 
@@ -212,6 +238,7 @@ private fun Bullet(text: String) {
 private fun TextStep(
     title: String,
     body: String,
+    number: Int,
     initial: String,
     placeholder: String,
     keyboardType: KeyboardType,
@@ -220,10 +247,10 @@ private fun TextStep(
     var value by remember { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
     val focus = remember { FocusRequester() }
     val submit = { if (value.text.isNotBlank()) onNext(value.text.trim()) }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        StepHeader(title, body)
-        TvTextField(value, { value = it }, placeholder, keyboardType, focus, Modifier.width(560.dp)) { submit() }
-        Button(onClick = submit, enabled = value.text.isNotBlank()) { Text(stringResource(R.string.action_continue)) }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(22.dp)) {
+        StepHeader(title, body, number)
+        TvTextField(value, { value = it }, placeholder, keyboardType, focus, Modifier.width(580.dp)) { submit() }
+        BrutalButton(stringResource(R.string.action_continue), onClick = submit, enabled = value.text.isNotBlank())
     }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 }
@@ -236,18 +263,22 @@ private fun ConnectStep(vm: SettingsViewModel, onRetry: () -> Unit, onBack: () -
         when (val c = connection) {
             ConnectionState.Idle, ConnectionState.Testing, is ConnectionState.Connected -> {
                 StepHeader(stringResource(R.string.setup_connecting_title), stringResource(R.string.setup_connecting_body))
-                Spinner(36.dp)
+                Spinner(40.dp)
             }
             is ConnectionState.Failed -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(32.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Text(stringResource(R.string.setup_failed_title), style = MaterialTheme.typography.headlineMedium)
+                BrutalCard(Modifier.widthIn(max = 640.dp), borderColor = Palette.Destructive) {
+                    Row(Modifier.padding(20.dp), verticalAlignment = Alignment.Top) {
+                        Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = Palette.Destructive, modifier = Modifier.size(28.dp))
+                        Spacer(Modifier.width(14.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(stringResource(R.string.setup_failed_title), style = MaterialTheme.typography.titleLarge, color = Palette.Destructive)
+                            Text(c.message, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
                 }
-                Text(c.message, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = onRetry, modifier = Modifier.focusRequester(focus)) { Text(stringResource(R.string.action_retry)) }
-                    OutlinedButton(onClick = onBack) { Text(stringResource(R.string.action_edit_details)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    BrutalButton(stringResource(R.string.action_retry), onClick = onRetry, modifier = Modifier.focusRequester(focus))
+                    BrutalButton(stringResource(R.string.action_edit_details), onClick = onBack, style = BrutalStyle.OUTLINE)
                 }
                 LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
             }
@@ -260,17 +291,25 @@ private fun Done(onFinished: () -> Unit) {
     val context = LocalContext.current
     val focus = remember { FocusRequester() }
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        StepHeader(stringResource(R.string.setup_done_title), stringResource(R.string.setup_done_body))
-        Text(stringResource(R.string.screensaver_how_title), style = MaterialTheme.typography.titleMedium)
-        Text(stringResource(R.string.screensaver_how_body), style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        CodeBlock(screensaverCommand(context.packageName), Modifier.width(640.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = {
-                onFinished()
-                context.startActivity(Intent(context, PreviewActivity::class.java))
-            }, modifier = Modifier.focusRequester(focus)) { Text(stringResource(R.string.action_preview)) }
-            OutlinedButton(onClick = onFinished) { Text(stringResource(R.string.action_open_settings)) }
+        StepHeader(stringResource(R.string.setup_done_title), stringResource(R.string.setup_done_body), number = 4)
+        BrutalCard(Modifier.width(660.dp)) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(R.string.screensaver_how_title).uppercase(), style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.screensaver_how_body), style = MaterialTheme.typography.bodyMedium, color = Palette.TextMuted)
+                CodeBlock(screensaverCommand(context.packageName))
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+            BrutalButton(
+                stringResource(R.string.action_preview),
+                onClick = {
+                    onFinished()
+                    context.startActivity(Intent(context, PreviewActivity::class.java))
+                },
+                modifier = Modifier.focusRequester(focus),
+            )
+            BrutalButton(stringResource(R.string.action_open_settings), onClick = onFinished, style = BrutalStyle.OUTLINE)
         }
     }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }

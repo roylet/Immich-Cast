@@ -4,47 +4,74 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Typography
 import androidx.tv.material3.darkColorScheme
+import com.roylet.immichcast.R
 
+/**
+ * Dark take on ImmichUp's neo-brutalist theme: thick cream outlines and hard offset
+ * shadows instead of soft elevation, an orange accent, and Archivo display type.
+ */
 object Palette {
-    val Background = Color(0xFF0B0D12)
-    val Surface = Color(0xFF151922)
-    val SurfaceRaised = Color(0xFF1D2230)
-    val Primary = Color(0xFF8FA8FF)
-    val OnPrimary = Color(0xFF0B1338)
-    val Text = Color(0xFFE8EAF2)
-    val TextMuted = Color(0xFF9AA1B5)
-    val Danger = Color(0xFFFF7A7A)
-    val Success = Color(0xFF7DDC9C)
+    val Background = Color(0xFF141311)
+    val Dot = Color(0xFF2B2824)
+    val Card = Color(0xFF1F1D1A)
+    val Secondary = Color(0xFF3A2A1F)
+    /** Outlines and hard shadows. */
+    val Ink = Color(0xFFF3EBDD)
+    val Text = Color(0xFFF7F1E6)
+    val TextMuted = Color(0xFFA9A193)
+    val Primary = Color(0xFFFF5A1F)
+    val OnPrimary = Color(0xFF111111)
+    val Destructive = Color(0xFFFF5C67)
+    val Success = Color(0xFF3DBE6E)
+    val Warning = Color(0xFFFFC53D)
 }
+
+val Archivo = FontFamily(
+    Font(R.font.archivo_medium, FontWeight.Medium),
+    Font(R.font.archivo_bold, FontWeight.Bold),
+    Font(R.font.archivo_extrabold, FontWeight.ExtraBold),
+    Font(R.font.archivo_black, FontWeight.Black),
+)
 
 private val colors = darkColorScheme(
     primary = Palette.Primary,
     onPrimary = Palette.OnPrimary,
-    secondary = Palette.Primary,
+    secondary = Palette.Secondary,
+    onSecondary = Palette.Text,
     background = Palette.Background,
     onBackground = Palette.Text,
-    surface = Palette.Surface,
+    surface = Palette.Card,
     onSurface = Palette.Text,
-    surfaceVariant = Palette.SurfaceRaised,
+    surfaceVariant = Palette.Card,
     onSurfaceVariant = Palette.TextMuted,
-    error = Palette.Danger,
-    border = Color(0xFF2A3042),
+    error = Palette.Destructive,
+    border = Palette.Ink,
 )
 
 private val base = Typography()
 
+private fun display(size: Int, weight: FontWeight = FontWeight.Black, spacing: Float = -0.5f) =
+    TextStyle(fontFamily = Archivo, fontWeight = weight, fontSize = size.sp, letterSpacing = spacing.sp)
+
 private val typography = base.copy(
-    displaySmall = base.displaySmall.copy(fontWeight = FontWeight.SemiBold),
-    headlineMedium = base.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
-    headlineSmall = base.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-    titleLarge = base.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-    labelSmall = TextStyle(fontSize = 11.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.Medium),
+    displayMedium = display(52),
+    displaySmall = display(40),
+    headlineMedium = display(32),
+    headlineSmall = display(24),
+    titleLarge = display(22, FontWeight.ExtraBold, 0f),
+    titleMedium = display(17, FontWeight.ExtraBold, 0f),
+    titleSmall = display(15, FontWeight.Bold, 0f),
+    labelLarge = display(14, FontWeight.Bold, 1f),
+    labelMedium = display(12, FontWeight.ExtraBold, 1.2f),
+    labelSmall = display(11, FontWeight.ExtraBold, 1.4f),
 )
 
 @Composable

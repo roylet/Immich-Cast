@@ -1,31 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launcher icon background: one quadrant per season, each behind the matching segment of the logo ring. -->
+<!-- Launcher background: ImmichUp orange. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
-    <path android:pathData="M0,0 H54 V54 H0 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="54" android:endY="54"
-                android:startColor="#A9D1FF" android:endColor="#5A84B8" />
-        </aapt:attr>
-    </path>
-    <path android:pathData="M54,0 H108 V54 H54 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="108" android:startY="0" android:endX="54" android:endY="54"
-                android:startColor="#9BDB86" android:endColor="#4E9A57" />
-        </aapt:attr>
-    </path>
-    <path android:pathData="M54,54 H108 V108 H54 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="108" android:startY="108" android:endX="54" android:endY="54"
-                android:startColor="#FFD36E" android:endColor="#E59A3A" />
-        </aapt:attr>
-    </path>
-    <path android:pathData="M0,54 H54 V108 H0 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="0" android:startY="108" android:endX="54" android:endY="54"
-                android:startColor="#F4945A" android:endColor="#B4502C" />
-        </aapt:attr>
-    </path>
+    <path android:pathData="M0,0 H108 V108 H0 Z" android:fillColor="#FF5A1F" />
 </vector>
