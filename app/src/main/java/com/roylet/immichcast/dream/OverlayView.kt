@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.SystemClock
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -15,6 +16,7 @@ import com.roylet.immichcast.core.ClockFormat
 import com.roylet.immichcast.core.OverlayItem
 import com.roylet.immichcast.core.OverlayPosition
 import com.roylet.immichcast.core.SlideshowConfig
+import kotlin.random.Random
 
 /** Text shown over a slide; each line is optional and hidden when empty. */
 internal data class SlideCaption(
@@ -25,7 +27,12 @@ internal data class SlideCaption(
     val season: String? = null,
 )
 
-/** Clock and photo details, drawn over a soft gradient inside the TV safe area. */
+/**
+ * Clock and photo details, drawn over a soft gradient inside the TV safe area.
+ *
+ * To avoid burning into the panel, the text drifts a few pixels with every slide and
+ * periodically moves to the opposite side of the screen.
+ */
 internal class OverlayView(context: Context) : FrameLayout(context) {
 
     private val scrim = View(context)
@@ -49,6 +56,9 @@ internal class OverlayView(context: Context) : FrameLayout(context) {
     }
 
     private var items: Set<OverlayItem> = emptySet()
+    private var top = false
+    private var end = false
+    private var placedAt = 0L
 
     init {
         column.addView(clock)
@@ -79,17 +89,22 @@ internal class OverlayView(context: Context) : FrameLayout(context) {
             }
         }
 
-        val top = config.overlayPosition == OverlayPosition.TOP_START || config.overlayPosition == OverlayPosition.TOP_END
-        val end = config.overlayPosition == OverlayPosition.BOTTOM_END || config.overlayPosition == OverlayPosition.TOP_END
+        top = config.overlayPosition == OverlayPosition.TOP_START || config.overlayPosition == OverlayPosition.TOP_END
+        end = config.overlayPosition == OverlayPosition.BOTTOM_END || config.overlayPosition == OverlayPosition.TOP_END
         val vertical = if (top) Gravity.TOP else Gravity.BOTTOM
-        val horizontal = if (end) Gravity.END else Gravity.START
 
         scrim.background = GradientDrawable(
             if (top) GradientDrawable.Orientation.TOP_BOTTOM else GradientDrawable.Orientation.BOTTOM_TOP,
             intArrayOf(Color.argb(150, 0, 0, 0), Color.argb(60, 0, 0, 0), Color.TRANSPARENT),
         )
         scrim.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, (resources.displayMetrics.heightPixels * 0.42f).toInt(), vertical)
+        placeColumn()
+    }
 
+    /** Anchors the text to the current corner, with no drift. */
+    private fun placeColumn() {
+        val vertical = if (top) Gravity.TOP else Gravity.BOTTOM
+        val horizontal = if (end) Gravity.END else Gravity.START
         // Overscan-safe margins: 5% of a 960x540dp TV canvas.
         column.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, vertical or horizontal).apply {
             val h = dp(56)
@@ -99,6 +114,9 @@ internal class OverlayView(context: Context) : FrameLayout(context) {
         column.gravity = horizontal
         details.gravity = horizontal
         listOf(clock, dateLine, locationLine, albumLine, descriptionLine, seasonLine).forEach { it.gravity = horizontal }
+        column.translationX = 0f
+        column.translationY = 0f
+        placedAt = SystemClock.elapsedRealtime()
     }
 
     fun setCaption(caption: SlideCaption, animate: Boolean) {
@@ -114,10 +132,31 @@ internal class OverlayView(context: Context) : FrameLayout(context) {
             apply()
             return
         }
+        if (SystemClock.elapsedRealtime() - placedAt >= SIDE_SWAP_MS) {
+            // Fade everything out, switch sides, and fade back in.
+            column.animate().alpha(0f).setDuration(600).withEndAction {
+                end = !end
+                placeColumn()
+                apply()
+                column.animate().alpha(1f).setDuration(900).start()
+            }.start()
+            return
+        }
         details.animate().alpha(0f).setDuration(350).withEndAction {
             apply()
             details.animate().alpha(1f).setDuration(650).start()
         }.start()
+        drift()
+    }
+
+    /** Eases the text to a new spot within a few pixels of its anchor. */
+    private fun drift() {
+        val range = dp(DRIFT_DP)
+        column.animate()
+            .translationX(Random.nextInt(-range, range + 1).toFloat())
+            .translationY(Random.nextInt(-range, range + 1).toFloat())
+            .setDuration(2_000)
+            .start()
     }
 
     private fun TextView.show(text: String?, item: OverlayItem) {
@@ -137,4 +176,10 @@ internal class OverlayView(context: Context) : FrameLayout(context) {
     }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
+    private companion object {
+        /** Furthest the text wanders from its anchor, within the 56/36dp safe margins. */
+        const val DRIFT_DP = 12
+        const val SIDE_SWAP_MS = 10 * 60_000L
+    }
 }
