@@ -42,6 +42,10 @@ jobs:
       - name: Rename APK
         run: |
           version=$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"(.*)".*/\1/')
+          if [[ "$GITHUB_REF" == refs/tags/v* && "${GITHUB_REF#refs/tags/v}" != "$version" ]]; then
+            echo "::error::Tag ${GITHUB_REF#refs/tags/} does not match versionName $version in app/build.gradle.kts"
+            exit 1
+          fi
           cp app/build/outputs/apk/release/app-release.apk "immich-cast-${version}.apk"
           echo "APK=immich-cast-${version}.apk" >> "$GITHUB_ENV"
 
@@ -62,3 +66,11 @@ jobs:
         with:
           files: ${{ env.APK }}
           generate_release_notes: true
+          body: |
+            ## Install
+
+            Download **${{ env.APK }}** below, then follow the step-by-step guide:
+            [INSTALL.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/INSTALL.md)
+
+            Already installed? Update in place, keeping your settings:
+            `adb install -r ${{ env.APK }}`

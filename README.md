@@ -50,7 +50,7 @@ It shows photos from the current season across every year in your library: in sp
 
 ## Installation
 
-**👉 Follow the step-by-step guide: [INSTALL.md](INSTALL.md)**
+**👉 [Download the latest APK](https://github.com/roylet/Immich-Cast/releases/latest), then follow the step-by-step guide: [INSTALL.md](INSTALL.md)**
 
 It covers downloading the APK, installing adb on Windows, Mac or Linux, turning on developer options on the Chromecast, installing and setting up the app, making it the screensaver, updating, and switching back. Allow about 15 minutes, once.
 

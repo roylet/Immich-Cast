@@ -14,14 +14,15 @@ You'll need:
 
 ## Step 1: Download the app (APK)
 
-**From the GitHub Actions build:**
+1. Open the [latest release](https://github.com/roylet/Immich-Cast/releases/latest).
+2. Under **Assets**, download `immich-cast-1.0.0.apk` (the version number may be newer).
+3. Save it somewhere easy to find, like your Downloads folder.
 
-1. Open the [Build workflow](https://github.com/roylet/Immich-Cast/actions/workflows/build.yml) page (you need to be signed in to GitHub).
-2. Click the most recent run with a green tick.
-3. Scroll to **Artifacts** and download **immich-cast-apk**.
-4. Unzip it. Inside is `immich-cast-1.0.0.apk`. Move it somewhere easy to find, like your Downloads folder.
+<details>
+<summary>Want a build that isn't released yet?</summary>
 
-If the project has a [Releases](https://github.com/roylet/Immich-Cast/releases) page, you can download the `.apk` directly from the latest release instead.
+Every push is built by GitHub Actions. Open the [Build workflow](https://github.com/roylet/Immich-Cast/actions/workflows/build.yml) (sign in to GitHub), click the newest run with a green tick, download **immich-cast-apk** under **Artifacts**, and unzip it.
+</details>
 
 ## Step 2: Install adb on your computer
 
