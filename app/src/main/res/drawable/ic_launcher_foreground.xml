@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon foreground: the four-season ring logo on a dark disc. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp"
-    android:viewportWidth="86.4" android:viewportHeight="86.4">
-<group android:translateX="19.2" android:translateY="19.2">
-    <path android:pathData="M25.491,5.059 A19,19 0 0,1 42.941,22.509" android:strokeColor="#8BD17C" android:strokeWidth="4.2" android:strokeLineCap="round" android:fillColor="#00000000"/>
-    <path android:pathData="M42.941,25.491 A19,19 0 0,1 25.491,42.941" android:strokeColor="#FFC857" android:strokeWidth="4.2" android:strokeLineCap="round" android:fillColor="#00000000"/>
-    <path android:pathData="M22.509,42.941 A19,19 0 0,1 5.059,25.491" android:strokeColor="#F08A4B" android:strokeWidth="4.2" android:strokeLineCap="round" android:fillColor="#00000000"/>
-    <path android:pathData="M5.059,22.509 A19,19 0 0,1 22.509,5.059" android:strokeColor="#8EC5FF" android:strokeWidth="4.2" android:strokeLineCap="round" android:fillColor="#00000000"/>
-    <path android:pathData="M13.5,31.5 L20.5,21.5 L25.5,27.8 L28.6,24.2 L34.5,31.5 Z" android:fillColor="#E8EAF2"/>
-    <path android:pathData="M30.8,17.2 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0" android:fillColor="#FFC857"/>
-</group>
+    android:viewportWidth="100" android:viewportHeight="100">
+    <group android:translateX="26" android:translateY="26">
+        <path android:pathData="M24,24 m-23,0 a23,23 0 1,0 46,0 a23,23 0 1,0 -46,0" android:fillColor="#0E1220" android:fillAlpha="0.9" />
+        <path android:pathData="M25.491,5.059 A19,19 0 0,1 42.941,22.509" android:strokeColor="#8BD17C" android:strokeWidth="4.2" android:strokeLineCap="round" />
+        <path android:pathData="M42.941,25.491 A19,19 0 0,1 25.491,42.941" android:strokeColor="#FFC857" android:strokeWidth="4.2" android:strokeLineCap="round" />
+        <path android:pathData="M22.509,42.941 A19,19 0 0,1 5.059,25.491" android:strokeColor="#F08A4B" android:strokeWidth="4.2" android:strokeLineCap="round" />
+        <path android:pathData="M5.059,22.509 A19,19 0 0,1 22.509,5.059" android:strokeColor="#8EC5FF" android:strokeWidth="4.2" android:strokeLineCap="round" />
+        <path android:pathData="M13.5,31.5 L20.5,21.5 L25.5,27.8 L28.6,24.2 L34.5,31.5 Z" android:fillColor="#FFFFFF" />
+        <path android:pathData="M30.8,17.2 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0" android:fillColor="#FFC857" />
+    </group>
 </vector>

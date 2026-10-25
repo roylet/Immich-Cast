@@ -1,5 +1,7 @@
 # Immich Cast
 
+<p align="center"><img src="docs/app-banner.png" width="640" alt="Immich Cast"></p>
+
 A screensaver for **Chromecast with Google TV** (and other Android TV / Google TV devices) that shows your [Immich](https://immich.app) photos **season by season**.
 
 It shows photos from the current season across every year in your library: in spring you see every September–November from every year. You can also **exclude albums**. A photo in an excluded album never appears, even if it is also in another album.
@@ -154,6 +156,7 @@ Archived, hidden, locked and trashed photos are never shown. The list is cached 
 ./gradlew testDebugUnitTest      # unit tests and screenshot rendering
 ./gradlew lintDebug
 ./gradlew recordPaparazziDebug   # re-render UI screenshots to app/src/test/snapshots
+node art/render.js               # regenerate the TV banner and screensaver preview from art/banner.html
 ./gradlew assembleRelease
 ```
 
@@ -166,6 +169,8 @@ The code lives in `app/src/main/java/com/roylet/immichcast/`:
 | `data/` | Settings storage and the cached playlist repository |
 | `dream/` | The screensaver: `DreamService`, slideshow view, transitions, overlay |
 | `ui/` | Settings and setup wizard, built with Compose for TV |
+
+The app's TV banner is drawn in `art/banner.html` and rendered to PNGs by `art/render.js` (uses Playwright). The launcher icon is pure vector: `res/drawable/ic_launcher_*.xml`.
 
 ### Release signing
 

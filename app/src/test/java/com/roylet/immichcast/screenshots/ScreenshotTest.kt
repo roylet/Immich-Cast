@@ -10,6 +10,28 @@ import android.graphics.Path
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.widget.FrameLayout
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import com.roylet.immichcast.R
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.android.resources.Density
@@ -152,6 +174,46 @@ class ScreenshotTest {
             setCaption(SlideCaption(date = "5 October 2022", location = "Hobart, Australia", season = "Spring 2022"), animate = false)
         })
         paparazzi.snapshot(root)
+    }
+
+    /** The home-screen banner in a mock Google TV apps row, plus the launcher icon under common masks. */
+    @Test
+    fun appArt() {
+        paparazzi.snapshot {
+            ImmichCastTheme {
+                Column(
+                    Modifier.fillMaxSize().background(Color(0xFF101318)).padding(48.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
+                ) {
+                    Text("Your apps", style = MaterialTheme.typography.titleLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(196.dp, 110.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2B3140)))
+                        Image(
+                            painterResource(R.drawable.banner), contentDescription = null,
+                            modifier = Modifier.size(216.dp, 121.5.dp).border(3.dp, Color.White, RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(12.dp)),
+                        )
+                        Image(
+                            painterResource(R.drawable.banner), contentDescription = null,
+                            modifier = Modifier.size(196.dp, 110.dp).clip(RoundedCornerShape(10.dp)),
+                        )
+                        Box(Modifier.size(196.dp, 110.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2B3140)))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                        // Adaptive icons show the middle 72 of 108 units, so draw the layers at 1.5x and mask.
+                        listOf(CircleShape, RoundedCornerShape(28.dp), RoundedCornerShape(12.dp)).forEach { shape ->
+                            Box(Modifier.size(96.dp).clip(shape), contentAlignment = Alignment.Center) {
+                                Image(painterResource(R.drawable.ic_launcher_background), null, Modifier.requiredSize(144.dp))
+                                Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.requiredSize(144.dp))
+                            }
+                        }
+                        Box(Modifier.size(96.dp).clip(CircleShape).background(Color(0xFF3A4256)), contentAlignment = Alignment.Center) {
+                            Image(painterResource(R.drawable.ic_launcher_monochrome), null, Modifier.requiredSize(144.dp))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /** A 4:3 landscape "photo" so the blurred letterbox is visible on a 16:9 screen. */
