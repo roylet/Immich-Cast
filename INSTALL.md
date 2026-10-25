@@ -80,6 +80,14 @@ adb devices
 
 You should see your TV's address followed by `device`. If it says `unauthorized`, look at the TV for the prompt and run `adb devices` again.
 
+If the list also shows an old entry marked `offline` (often left over from an earlier attempt), remove it, or later commands will fail with `more than one device/emulator`:
+
+```sh
+adb disconnect 192.168.1.50:5555
+```
+
+Use the address exactly as `adb devices` shows it for the offline entry.
+
 <details>
 <summary><strong>"Connection refused"? Use Wireless debugging instead</strong></summary>
 
