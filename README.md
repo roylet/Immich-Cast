@@ -2,7 +2,7 @@
 
 <p align="center"><img src="docs/app-banner.png" width="640" alt="Immich Cast"></p>
 
-A screensaver for **Chromecast with Google TV** (and other Android TV / Google TV devices) that shows your [Immich](https://immich.app) photos **season by season**.
+A screensaver for **Chromecast with Google TV** (and other Android TV / Google TV devices) that shows your [Immich](https://immich.app) photos: **season by season**, **at random**, **recent** ones, or **on this day** in past years.
 
 It shows photos from the current season across every year in your library: in spring you see every September–November from every year. You can also **exclude albums**. A photo in an excluded album never appears, even if it is also in another album.
 
@@ -17,7 +17,12 @@ It shows photos from the current season across every year in your library: in sp
 
 ## Features
 
-- **Seasonal slideshow.** Southern Hemisphere meteorological seasons:
+- **Four slideshow modes:**
+  - **Seasonal:** photos from the current season across every year (details below).
+  - **Random:** your whole library, shuffled.
+  - **Recent:** the last 30 days, 90 days, 6 months or 12 months.
+  - **On this day:** the week around today's date in every past year. It changes daily.
+- **Seasons** follow the Southern Hemisphere meteorological calendar:
 
   | Season | Months | Notes |
   |---|---|---|
@@ -26,7 +31,7 @@ It shows photos from the current season across every year in your library: in sp
   | Autumn | Mar–May | |
   | Winter | Jun–Aug | |
 
-  The season switches automatically. You can also pin one season or show everything.
+  The season switches automatically, or you can pin one. If the current season, recent span or day has no photos yet, the screensaver falls back to your whole library and says so.
 - **Album exclusions.** Pick albums to hide (receipts, screenshots, work), and every photo in them is left out.
 - **Everything configurable.** All of these are set with the remote:
   - time per photo
@@ -41,7 +46,7 @@ It shows photos from the current season across every year in your library: in sp
 - **No clutter by default.** The overlay is off. Turn on any of: clock, date taken, location, album name, description, season.
 - **Fast and resilient.** The photo list is cached on the device, so the screensaver starts at once and keeps working through Wi-Fi blips. The next photo is preloaded and decoded before it is shown.
 - **Private.** It talks only to your Immich server, nothing else.
-- **Bold, remote-friendly design.** The settings UI shares [ImmichUp](https://github.com/roylet/immichup)'s neo-brutalist look in a dark, TV-friendly variant: thick outlines, hard shadows, Archivo type and an orange accent. The focused item turns solid orange, so you can always see where you are from the sofa.
+- **Warm, remote-friendly design.** The look is inspired by [ImmichUp](https://github.com/roylet/immichup), softened for a dark TV room: subtle outlines and offset shadows, Archivo type and an orange accent. The focused item gets a warm tint and an orange outline, so you can always see where you are from the sofa.
 
 ## Requirements
 
@@ -124,11 +129,13 @@ You may want to run `adb shell settings get secure screensaver_components` *befo
 
 | Setting | Options | Default |
 |---|---|---|
-| Season | Current season, Spring, Summer, Autumn, Winter, All photos | Current season |
+| Show | Seasonal, Random, Recent, On this day | Seasonal |
+| Season (Seasonal) | Current season, Spring, Summer, Autumn, Winter | Current season |
+| Time span (Recent) | Last 30 days, 90 days, 180 days, 12 months | Last 90 days |
 | Excluded albums | Any of your albums (owned or shared) | None |
 | Media | Photos only, Photos and videos | Photos only |
 | Favourites only | On / Off | Off |
-| Play order | Shuffle, Oldest first, Newest first | Shuffle |
+| Play order (not shown for Random) | Shuffle, Oldest first, Newest first | Shuffle |
 | Time per photo | 10 s – 5 min | 30 seconds |
 | Transition | Crossfade, Slow zoom, None | Crossfade |
 | Image quality | Standard (~1440 px preview), Full quality (original) | Standard |
@@ -139,17 +146,16 @@ You may want to run `adb shell settings get secure screensaver_components` *befo
 | Clock format | System, 12-hour, 24-hour | System |
 | Refresh library every | 6, 12, 24 hours | 12 hours |
 
-If the current season has no photos yet, the screensaver shows your whole library and says so on screen.
 
 ## How it works
 
 The app builds its photo list with Immich's search API:
 
-1. It reads your timeline to find which years have photos in the current season.
-2. It queries each of those seasons with `POST /api/search/metadata`.
+1. It works out the date ranges for the chosen mode. For Seasonal and On this day, it reads your timeline so it only queries years that have photos. Random uses no date filter.
+2. It queries each range with `POST /api/search/metadata`.
 3. It removes every asset found in your excluded albums.
 
-Archived, hidden, locked and trashed photos are never shown. The list is cached on the TV and rebuilt in the background on your refresh interval, when the season changes, or when you change a setting that affects which photos are picked.
+Archived, hidden, locked and trashed photos are never shown. The list is cached on the TV and rebuilt in the background on your refresh interval, when the season or day changes (for date-based modes), or when you change a setting that affects which photos are picked.
 
 ## Development
 
@@ -171,7 +177,7 @@ The code lives in `app/src/main/java/com/roylet/immichcast/`:
 | `dream/` | The screensaver: `DreamService`, slideshow view, transitions, overlay |
 | `ui/` | Settings and setup wizard, built with Compose for TV |
 
-The app's TV banner is drawn in `art/banner.html` and rendered to PNGs by `art/render.js` (uses Playwright). The launcher icon is pure vector: `res/drawable/ic_launcher_*.xml`. The theme's colours and brutalist building blocks (hard shadows, outlined cards, focus states) live in `ui/theme/`. The Archivo font is bundled under the SIL Open Font License (`licenses/Archivo-OFL.txt`).
+The app's TV banner is drawn in `art/banner.html` and rendered to PNGs by `art/render.js` (uses Playwright). The launcher icon is pure vector: `res/drawable/ic_launcher_*.xml`. The theme's colours and building blocks (outlined cards, offset shadows, focus states) live in `ui/theme/`. The Archivo font is bundled under the SIL Open Font License (`licenses/Archivo-OFL.txt`).
 
 ### Release signing
 

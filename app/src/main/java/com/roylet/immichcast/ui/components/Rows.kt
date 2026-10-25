@@ -44,7 +44,7 @@ fun SettingsSection(title: String, modifier: Modifier = Modifier, content: @Comp
     }
 }
 
-/** Row inside a [SettingsSection]; turns orange when focused. */
+/** Row inside a [SettingsSection]; tinted with an orange outline when focused. */
 @Composable
 private fun SettingItem(
     icon: ImageVector?,
@@ -57,13 +57,13 @@ private fun SettingItem(
     trailing: (@Composable (focused: Boolean) -> Unit)? = null,
 ) {
     BrutalSurface(onClick, modifier.fillMaxWidth(), style = BrutalStyle.GHOST, enabled = enabled, shadow = 0.dp) { focused ->
-        val tint = if (danger && !focused) Palette.Destructive else LocalContentColor.current
+        val tint = if (danger) Palette.Destructive else LocalContentColor.current
         Row(
             Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 18.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             icon?.let {
-                Icon(it, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                Icon(it, contentDescription = null, tint = if (focused && !danger) Palette.Primary else tint, modifier = Modifier.size(22.dp))
                 Spacer(Modifier.width(16.dp))
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -72,7 +72,7 @@ private fun SettingItem(
                     Text(
                         it,
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (focused) Palette.OnPrimary.copy(alpha = 0.75f) else Palette.TextMuted,
+                        color = Palette.TextMuted,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )

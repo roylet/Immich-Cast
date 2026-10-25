@@ -15,16 +15,24 @@ import androidx.tv.material3.darkColorScheme
 import com.roylet.immichcast.R
 
 /**
- * Dark take on ImmichUp's neo-brutalist theme: thick cream outlines and hard offset
- * shadows instead of soft elevation, an orange accent, and Archivo display type.
+ * A softened, dark take on ImmichUp's neo-brutalist theme: warm outlines and offset
+ * shadows instead of blurred elevation, an orange accent, and Archivo display type.
  */
 object Palette {
     val Background = Color(0xFF141311)
-    val Dot = Color(0xFF2B2824)
+    val Dot = Color(0xFF221F1C)
     val Card = Color(0xFF1F1D1A)
     val Secondary = Color(0xFF3A2A1F)
-    /** Outlines and hard shadows. */
+    /** Cream: neutral badges and high-emphasis marks. */
     val Ink = Color(0xFFF3EBDD)
+    /** Outlines and dividers: a muted warm grey rather than stark cream. */
+    val Line = Color(0xFF3D3833)
+    /** Offset shadows sit just darker than the page. */
+    val Shadow = Color(0xFF070606)
+    /** Focus: a warm tint behind an orange outline, gentler than a solid orange fill. */
+    val FocusFill = Color(0xFF3A271C)
+    /** Primary buttons brighten slightly when focused. */
+    val PrimaryFocused = Color(0xFFFF7A47)
     val Text = Color(0xFFF7F1E6)
     val TextMuted = Color(0xFFA9A193)
     val Primary = Color(0xFFFF5A1F)
@@ -53,7 +61,7 @@ private val colors = darkColorScheme(
     surfaceVariant = Palette.Card,
     onSurfaceVariant = Palette.TextMuted,
     error = Palette.Destructive,
-    border = Palette.Ink,
+    border = Palette.Line,
 )
 
 private val base = Typography()

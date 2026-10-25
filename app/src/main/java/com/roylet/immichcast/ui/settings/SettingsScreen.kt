@@ -74,7 +74,7 @@ fun SettingsScreen(
     val status by vm.status.collectAsStateWithLifecycle()
     var category by rememberSaveable { mutableStateOf(initialCategory) }
     val context = LocalContext.current
-    val season = remember(config.seasonSource) { vm.effectiveSeason(config) }
+    val season = remember(config.mode, config.seasonSource) { vm.effectiveSeason(config) }
 
     Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
         // Navigation rail
@@ -94,7 +94,7 @@ fun SettingsScreen(
                     Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
                 }
                 Spacer(Modifier.height(4.dp))
-                StatusCard(status, season)
+                StatusCard(status, config, season)
                 Spacer(Modifier.height(6.dp))
                 Category.entries.forEach { item ->
                     BrutalSurface(
@@ -112,8 +112,8 @@ fun SettingsScreen(
                     }
                 }
             }
-            // Hard vertical rule between rail and content.
-            Box(Modifier.width(2.dp).fillMaxHeight().background(Palette.Ink))
+            // Rule between rail and content.
+            Box(Modifier.width(1.dp).fillMaxHeight().background(Palette.Line))
         }
 
         // Detail pane

@@ -12,6 +12,7 @@ import com.roylet.immichcast.core.OverlayPosition
 import com.roylet.immichcast.core.PlaybackOrder
 import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SeasonSource
+import com.roylet.immichcast.core.SlideshowMode
 import com.roylet.immichcast.core.Transition
 
 @get:StringRes
@@ -44,8 +45,34 @@ val Season.accent: Color
 val SeasonSource.labelRes: Int
     get() = when (this) {
         SeasonSource.AUTOMATIC -> R.string.season_source_automatic
-        SeasonSource.ALL_PHOTOS -> R.string.season_all
         else -> fixedSeason!!.labelRes
+    }
+
+@get:StringRes
+val SlideshowMode.labelRes: Int
+    get() = when (this) {
+        SlideshowMode.SEASONAL -> R.string.mode_seasonal
+        SlideshowMode.RANDOM -> R.string.mode_random
+        SlideshowMode.RECENT -> R.string.mode_recent
+        SlideshowMode.ON_THIS_DAY -> R.string.mode_on_this_day
+    }
+
+@get:StringRes
+val SlideshowMode.descriptionRes: Int
+    get() = when (this) {
+        SlideshowMode.SEASONAL -> R.string.mode_seasonal_desc
+        SlideshowMode.RANDOM -> R.string.mode_random_desc
+        SlideshowMode.RECENT -> R.string.mode_recent_desc
+        SlideshowMode.ON_THIS_DAY -> R.string.mode_on_this_day_desc
+    }
+
+/** Accent used for a mode's badge; seasonal uses the season's own colour. */
+val SlideshowMode.accent: Color
+    get() = when (this) {
+        SlideshowMode.SEASONAL -> Color(0xFF8BD17C)
+        SlideshowMode.RANDOM -> Color(0xFFFF8A5C)
+        SlideshowMode.RECENT -> Color(0xFF8EC5FF)
+        SlideshowMode.ON_THIS_DAY -> Color(0xFFFFC857)
     }
 
 @get:StringRes

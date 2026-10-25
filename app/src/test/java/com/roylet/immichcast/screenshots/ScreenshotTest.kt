@@ -46,6 +46,7 @@ import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.core.ImageFit
 import com.roylet.immichcast.core.OverlayItem
 import com.roylet.immichcast.core.SlideshowConfig
+import com.roylet.immichcast.core.SlideshowMode
 import com.roylet.immichcast.data.AppSettings
 import com.roylet.immichcast.data.PlaylistRepository
 import com.roylet.immichcast.dream.OverlayView
@@ -152,6 +153,12 @@ class ScreenshotTest {
     }
 
     @Test
+    fun settingsRecentMode() {
+        val vm = viewModel { it.copy(mode = SlideshowMode.RECENT, recentDays = 90) }
+        paparazzi.snapshot { ImmichCastTheme { SettingsScreen(vm, {}, {}) } }
+    }
+
+    @Test
     fun settingsDisplay() {
         val vm = viewModel()
         paparazzi.snapshot { ImmichCastTheme { SettingsScreen(vm, {}, {}, initialCategory = Category.DISPLAY) } }
@@ -203,7 +210,7 @@ class ScreenshotTest {
                 ) {
                     SettingsSection("Focused row") {
                         ValueRow(null, "Time per photo", "30 seconds", onClick = {}, modifier = Modifier.focusRequester(focus),
-                            description = "Focused rows turn orange")
+                            description = "Focused rows get a warm tint and orange outline")
                         RowDivider()
                         SwitchRow(null, "Toggle on", checked = true, onCheckedChange = {})
                         RowDivider()

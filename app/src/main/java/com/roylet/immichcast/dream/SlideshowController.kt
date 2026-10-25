@@ -63,9 +63,7 @@ internal class SlideshowController(
             return
         }
         var playlist = loadInitialPlaylist()
-        if (playlist.stats.fellBackToAll) {
-            view.showNotice(str(R.string.dream_notice_fallback, str(seasonLabel(repo.effectiveSeason(config)))))
-        }
+        if (playlist.stats.fellBackToAll) view.showNotice(str(R.string.dream_notice_fallback))
         while (playlist.photos.isEmpty()) {
             view.showMessage(str(R.string.dream_empty_title), str(R.string.dream_empty_body), busy = false)
             delay(RETRY_MS * 4)
@@ -130,11 +128,11 @@ internal class SlideshowController(
                 if (fresh != null && fresh.photos.isNotEmpty()) {
                     queue = fresh.photos
                     key = fresh.key
-                } else if (config.order == PlaybackOrder.SHUFFLE) {
+                } else if (config.effectiveOrder == PlaybackOrder.SHUFFLE) {
                     queue = PlaylistBuilder.applyOrder(queue, PlaybackOrder.SHUFFLE)
                 }
             }
-            // Season rolled over or the playlist is due a refresh.
+            // Season or day rolled over, or the playlist is due a refresh.
             if (key != repo.cacheKey(config) || repo.playlist.value?.let { repo.isStale(it, config) } != false) {
                 refreshInBackground()
             }
@@ -218,8 +216,6 @@ internal class SlideshowController(
         val years = if (season == Season.SUMMER) "$year–%02d".format((year + 1) % 100) else year.toString()
         return "${str(season.labelRes)} $years"
     }
-
-    private fun seasonLabel(season: Season?) = season?.labelRes ?: R.string.season_all
 
     private fun describe(e: Throwable): String = when (e) {
         is ImmichException.Unauthorized -> str(R.string.error_unauthorized)

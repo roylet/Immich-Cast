@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Eco
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.HighQuality
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Movie
@@ -55,6 +56,7 @@ import com.roylet.immichcast.core.OverlayPosition
 import com.roylet.immichcast.core.PlaybackOrder
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowConfig
+import com.roylet.immichcast.core.SlideshowMode
 import com.roylet.immichcast.core.Transition
 import com.roylet.immichcast.ui.ConnectionState
 import com.roylet.immichcast.ui.SettingsViewModel
@@ -99,6 +101,10 @@ private fun <T> ChoiceRow(
 }
 
 @Composable
+fun recentLabel(days: Int): String =
+    if (days == 365) stringResource(R.string.recent_year) else pluralStringResource(R.plurals.recent_days, days, days)
+
+@Composable
 fun durationLabel(seconds: Int): String =
     if (seconds < 60) pluralStringResource(R.plurals.duration_seconds, seconds, seconds)
     else pluralStringResource(R.plurals.duration_minutes, seconds / 60, seconds / 60)
@@ -107,21 +113,45 @@ fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onO
     item {
         SettingsSection(stringResource(R.string.section_what_to_show)) {
             ChoiceRow(
-                icon = Icons.Rounded.Eco,
-                title = stringResource(R.string.setting_season),
-                description = stringResource(R.string.setting_season_desc),
-                options = SeasonSource.entries,
-                selected = config.seasonSource,
+                icon = Icons.Rounded.Collections,
+                title = stringResource(R.string.setting_mode),
+                description = stringResource(R.string.setting_mode_desc),
+                options = SlideshowMode.entries,
+                selected = config.mode,
                 label = { stringResource(it.labelRes) },
-                optionDescription = { source ->
-                    when (source) {
-                        SeasonSource.AUTOMATIC -> stringResource(R.string.season_source_automatic_desc)
-                        SeasonSource.ALL_PHOTOS -> stringResource(R.string.season_all_desc)
-                        else -> stringResource(source.fixedSeason!!.monthsRes)
-                    }
-                },
-                onSelect = { v -> vm.update { it.copy(seasonSource = v) } },
+                optionDescription = { stringResource(it.descriptionRes) },
+                onSelect = { v -> vm.update { it.copy(mode = v) } },
             )
+            when (config.mode) {
+                SlideshowMode.SEASONAL -> {
+                    RowDivider()
+                    ChoiceRow(
+                        icon = Icons.Rounded.Eco,
+                        title = stringResource(R.string.setting_season),
+                        description = stringResource(R.string.setting_season_desc),
+                        options = SeasonSource.entries,
+                        selected = config.seasonSource,
+                        label = { stringResource(it.labelRes) },
+                        optionDescription = { source ->
+                            source.fixedSeason?.let { stringResource(it.monthsRes) }
+                                ?: stringResource(R.string.season_source_automatic_desc)
+                        },
+                        onSelect = { v -> vm.update { it.copy(seasonSource = v) } },
+                    )
+                }
+                SlideshowMode.RECENT -> {
+                    RowDivider()
+                    ChoiceRow(
+                        icon = Icons.Rounded.History,
+                        title = stringResource(R.string.setting_recent_span),
+                        options = SlideshowConfig.RECENT_SPANS,
+                        selected = config.recentDays,
+                        label = { recentLabel(it) },
+                        onSelect = { v -> vm.update { it.copy(recentDays = v) } },
+                    )
+                }
+                SlideshowMode.RANDOM, SlideshowMode.ON_THIS_DAY -> Unit
+            }
             RowDivider()
             val count = config.excludedAlbumIds.size
             ValueRow(
@@ -152,7 +182,7 @@ fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onO
             )
         }
     }
-    item {
+    if (config.mode != SlideshowMode.RANDOM) item {
         SettingsSection(stringResource(R.string.section_order)) {
             ChoiceRow(
                 icon = Icons.Rounded.Shuffle,

@@ -15,7 +15,9 @@ class SlideshowConfigTest {
         assertTrue(config.overlayItems.isEmpty())
         assertEquals(MediaFilter.IMAGES_ONLY, config.mediaFilter)
         assertEquals(ImageQuality.PREVIEW, config.quality)
+        assertEquals(SlideshowMode.SEASONAL, config.mode)
         assertEquals(SeasonSource.AUTOMATIC, config.seasonSource)
+        assertTrue(config.recentDays in SlideshowConfig.RECENT_SPANS)
         assertEquals(Transition.CROSSFADE, config.transition)
         assertEquals(ImageFit.FIT_BLURRED, config.fit)
         assertEquals(0, config.dimPercent)
@@ -33,6 +35,12 @@ class SlideshowConfigTest {
         assertNotEquals(base.playlistKey, base.copy(mediaFilter = MediaFilter.IMAGES_AND_VIDEOS).playlistKey)
         assertNotEquals(base.playlistKey, base.copy(seasonSource = SeasonSource.WINTER).playlistKey)
         assertNotEquals(base.playlistKey, base.copy(favoritesOnly = true).playlistKey)
+        assertNotEquals(base.playlistKey, base.copy(mode = SlideshowMode.RANDOM).playlistKey)
+        // Settings for other modes don't force a rebuild.
+        assertEquals(base.playlistKey, base.copy(recentDays = 30).playlistKey)
+        val recent = base.copy(mode = SlideshowMode.RECENT)
+        assertNotEquals(recent.playlistKey, recent.copy(recentDays = 30).playlistKey)
+        assertEquals(recent.playlistKey, recent.copy(seasonSource = SeasonSource.WINTER).playlistKey)
         assertEquals(
             base.copy(excludedAlbumIds = setOf("1", "2")).playlistKey,
             base.copy(excludedAlbumIds = setOf("2", "1")).playlistKey,

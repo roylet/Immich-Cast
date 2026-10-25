@@ -26,7 +26,7 @@ fun CodeBlock(text: String, modifier: Modifier = Modifier) {
         modifier
             .fillMaxWidth()
             .background(Color(0xFF0B0A09), BrutalShape)
-            .border(BrutalBorder, Palette.Ink, BrutalShape)
+            .border(BrutalBorder, Palette.Line, BrutalShape)
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
         Text(text, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall, color = Palette.Warning)

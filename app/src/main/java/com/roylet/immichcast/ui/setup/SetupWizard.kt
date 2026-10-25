@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -65,7 +66,6 @@ import com.roylet.immichcast.ui.theme.BrutalCard
 import com.roylet.immichcast.ui.theme.BrutalStyle
 import com.roylet.immichcast.ui.theme.Palette
 import com.roylet.immichcast.ui.theme.dotGrid
-import com.roylet.immichcast.ui.theme.hardShadow
 
 private enum class Step { WELCOME, SERVER, KEY, CONNECT, ALBUMS, DONE }
 
@@ -92,27 +92,25 @@ fun SetupWizard(vm: SettingsViewModel, onFinished: () -> Unit, onCancel: (() -> 
     }
 
     Row(Modifier.fillMaxSize().background(Palette.Background).dotGrid()) {
-        // Hero panel in ImmichUp orange
+        // Hero panel: warm card with a soft orange glow
         Column(
             Modifier
                 .width(380.dp)
                 .fillMaxHeight()
-                .background(Palette.Primary)
-                .dotGrid(Palette.OnPrimary.copy(alpha = 0.12f))
+                .background(Palette.Card)
+                .background(Brush.radialGradient(listOf(Palette.Primary.copy(alpha = 0.22f), Color.Transparent), radius = 900f))
                 .padding(48.dp),
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(painterResource(R.drawable.ic_logo_ink), contentDescription = null, modifier = Modifier.size(88.dp))
+            Image(painterResource(R.drawable.ic_logo), contentDescription = null, modifier = Modifier.size(88.dp))
             Spacer(Modifier.height(28.dp))
-            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displayMedium, color = Palette.OnPrimary)
+            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displayMedium)
             Spacer(Modifier.height(10.dp))
-            Text(stringResource(R.string.setup_tagline), style = MaterialTheme.typography.titleSmall,
-                color = Palette.OnPrimary.copy(alpha = 0.8f))
+            Text(stringResource(R.string.setup_tagline), style = MaterialTheme.typography.titleSmall, color = Palette.TextMuted)
             Spacer(Modifier.height(40.dp))
             StepIndicator(step.ordinal, Step.entries.size)
         }
-        Box(Modifier.width(2.dp).fillMaxHeight().background(Palette.OnPrimary))
-
+        
         Box(Modifier.weight(1f).fillMaxHeight().padding(horizontal = 64.dp, vertical = 48.dp), contentAlignment = Alignment.CenterStart) {
             AnimatedContent(targetState = step, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "step") { current ->
                 when (current) {
@@ -178,22 +176,20 @@ private fun StepIndicator(current: Int, total: Int) {
             Box(
                 Modifier
                     .size(if (i == current) 32.dp else 14.dp, 14.dp)
-                    .background(if (i <= current) Palette.OnPrimary else Color.Transparent, RoundedCornerShape(2.dp))
-                    .border(2.dp, Palette.OnPrimary, RoundedCornerShape(2.dp)),
+                    .background(if (i <= current) Palette.Primary else Palette.Line, RoundedCornerShape(7.dp)),
             )
         }
     }
 }
 
-/** Title with ImmichUp's numbered square, plus a description. */
+/** Title with a numbered badge, plus a description. */
 @Composable
 private fun StepHeader(title: String, body: String, number: Int? = null) {
     Column(Modifier.padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             number?.let {
                 Box(
-                    Modifier.size(34.dp).hardShadow(3.dp).background(Palette.Primary, RoundedCornerShape(3.dp))
-                        .border(2.dp, Palette.Ink, RoundedCornerShape(3.dp)),
+                    Modifier.size(34.dp).background(Palette.Primary, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(it.toString(), style = MaterialTheme.typography.titleMedium, color = Palette.OnPrimary)
@@ -224,7 +220,7 @@ private fun Welcome(onStart: () -> Unit) {
 private fun Bullet(text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
-            Modifier.size(24.dp).background(Palette.Primary, RoundedCornerShape(3.dp)).border(2.dp, Palette.Ink, RoundedCornerShape(3.dp)),
+            Modifier.size(24.dp).background(Palette.Primary, RoundedCornerShape(7.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(Icons.Rounded.Check, contentDescription = null, tint = Palette.OnPrimary, modifier = Modifier.size(16.dp))

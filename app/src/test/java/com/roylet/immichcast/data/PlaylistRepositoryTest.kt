@@ -4,6 +4,7 @@ import com.roylet.immichcast.api.ImmichApi
 import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowConfig
+import com.roylet.immichcast.core.SlideshowMode
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.Dispatcher
@@ -13,6 +14,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,11 +73,18 @@ class PlaylistRepositoryTest {
         log = { _, _ -> },
     )
 
-    private fun config(vararg excluded: String, source: SeasonSource = SeasonSource.AUTOMATIC) = SlideshowConfig(
+    private fun config(
+        vararg excluded: String,
+        source: SeasonSource = SeasonSource.AUTOMATIC,
+        mode: SlideshowMode = SlideshowMode.SEASONAL,
+        recentDays: Int = 90,
+    ) = SlideshowConfig(
         serverUrl = server.url("/").toString(),
         apiKey = "k",
         excludedAlbumIds = excluded.toSet(),
         seasonSource = source,
+        mode = mode,
+        recentDays = recentDays,
     )
 
     @Test
@@ -83,7 +92,7 @@ class PlaylistRepositoryTest {
         val playlist = repo(LocalDate.of(2026, 10, 25)).refresh(config("album-x"))
         assertEquals(setOf("spring22", "spring23"), playlist.photos.map { it.id }.toSet())
         assertEquals(Season.SPRING, playlist.stats.season)
-        assertEquals(2, playlist.stats.seasonYears)
+        assertEquals(2, playlist.stats.years)
         assertEquals(1, playlist.stats.excludedCount)
         assertFalse(playlist.stats.fellBackToAll)
         // Only years with spring photos are queried (2022, 2023), plus the album lookup.
@@ -116,5 +125,35 @@ class PlaylistRepositoryTest {
         repo.refresh(winter)
         assertEquals(listOf("winter24"), repo.cached(winter)!!.photos.map { it.id })
         assertEquals(null, repo.cached(config()))
+    }
+
+    @Test
+    fun `random uses the whole library minus exclusions`() = runTest {
+        val playlist = repo(LocalDate.of(2026, 10, 25)).refresh(config("album-x", mode = SlideshowMode.RANDOM))
+        assertEquals(library.keys.filterNot { it.startsWith("x-") }.toSet(), playlist.photos.map { it.id }.toSet())
+        assertFalse(playlist.stats.fellBackToAll)
+    }
+
+    @Test
+    fun `recent covers the chosen span`() = runTest {
+        // 2024-07-01 is within 365 days of 2025-06-01; 2024-01-15 is not.
+        val playlist = repo(LocalDate.of(2025, 6, 1)).refresh(config(mode = SlideshowMode.RECENT, recentDays = 365))
+        assertEquals(listOf("winter24"), playlist.photos.map { it.id })
+    }
+
+    @Test
+    fun `on this day picks the same week in earlier years`() = runTest {
+        // 2022-10-05 and 2023-09-01 are in the library; only the first is within 3 days of 10-03.
+        val playlist = repo(LocalDate.of(2026, 10, 3)).refresh(config(mode = SlideshowMode.ON_THIS_DAY))
+        assertEquals(listOf("spring22"), playlist.photos.map { it.id })
+        assertEquals(1, playlist.stats.years)
+    }
+
+    @Test
+    fun `cache key moves with the day for date-relative modes`() {
+        val recent = config(mode = SlideshowMode.RECENT)
+        assertNotEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(recent), repo(LocalDate.of(2026, 10, 4)).cacheKey(recent))
+        val random = config(mode = SlideshowMode.RANDOM)
+        assertEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(random), repo(LocalDate.of(2026, 10, 4)).cacheKey(random))
     }
 }

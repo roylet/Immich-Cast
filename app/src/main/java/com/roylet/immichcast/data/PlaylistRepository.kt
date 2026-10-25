@@ -7,12 +7,14 @@ import com.roylet.immichcast.api.ImmichException
 import com.roylet.immichcast.api.SearchMetadataRequest
 import com.roylet.immichcast.core.DateRange
 import com.roylet.immichcast.core.MediaFilter
+import com.roylet.immichcast.core.Modes
 import com.roylet.immichcast.core.Photo
 import com.roylet.immichcast.core.PlaylistBuilder
 import com.roylet.immichcast.core.Season
 import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.Seasons
 import com.roylet.immichcast.core.SlideshowConfig
+import com.roylet.immichcast.core.SlideshowMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,8 +29,10 @@ import java.time.ZoneOffset
 
 @Serializable
 data class PlaylistStats(
+    val mode: SlideshowMode = SlideshowMode.SEASONAL,
     val season: Season? = null,
-    val seasonYears: Int = 0,
+    /** Distinct years the photos come from (seasonal and on-this-day modes). */
+    val years: Int = 0,
     val excludedCount: Int = 0,
     val total: Int = 0,
     val fellBackToAll: Boolean = false,
@@ -59,15 +63,22 @@ class PlaylistRepository(
     /** The most recently loaded or built playlist, for status display. */
     val playlist: StateFlow<Playlist?> = latest.asStateFlow()
 
-    fun effectiveSeason(config: SlideshowConfig): Season? = when (config.seasonSource) {
-        SeasonSource.AUTOMATIC -> Season.of(today())
-        SeasonSource.ALL_PHOTOS -> null
-        else -> config.seasonSource.fixedSeason
+    fun effectiveSeason(config: SlideshowConfig): Season? = Modes.season(config, today())
+
+    /**
+     * Identifies the photo selection. Besides the settings it includes whatever moves with
+     * the calendar: the season, or today's date for the recent and on-this-day modes.
+     */
+    fun cacheKey(config: SlideshowConfig): String {
+        val moving = when (config.mode) {
+            SlideshowMode.SEASONAL -> effectiveSeason(config)?.name
+            SlideshowMode.RECENT, SlideshowMode.ON_THIS_DAY -> today().toString()
+            SlideshowMode.RANDOM -> null
+        }
+        return "${config.playlistKey}|${moving.orEmpty()}"
     }
 
-    fun cacheKey(config: SlideshowConfig): String = "${config.playlistKey}|${effectiveSeason(config)?.name ?: "ALL"}"
-
-    /** Cached playlist for this exact configuration and season, regardless of age. */
+    /** Cached playlist for this exact configuration and date, regardless of age. */
     suspend fun cached(config: SlideshowConfig): Playlist? = withContext(Dispatchers.IO) {
         val playlist = latest.value?.takeIf { it.key == cacheKey(config) } ?: readCache()
         playlist?.takeIf { it.key == cacheKey(config) }?.also { latest.value = it }
@@ -86,20 +97,26 @@ class PlaylistRepository(
         val api = apiFor(config)
         val season = effectiveSeason(config)
         val excluded = excludedAssetIds(api, config.excludedAlbumIds)
-        var (photos, years) = loadSeason(api, config, season, excluded)
+        var photos = build(api, config, selection(api, config, season), excluded)
         var fellBack = false
-        if (photos.isEmpty() && season != null && config.seasonSource == SeasonSource.AUTOMATIC) {
-            log("No photos for $season, falling back to the whole library", null)
-            photos = loadSeason(api, config, null, excluded).first
-            years = 0
+        // A fixed season the user picked stays as asked; anything that follows the calendar can come up empty.
+        val followsCalendar = config.mode != SlideshowMode.RANDOM &&
+            !(config.mode == SlideshowMode.SEASONAL && config.seasonSource != SeasonSource.AUTOMATIC)
+        if (photos.isEmpty() && followsCalendar) {
+            log("Nothing for ${config.mode} today, falling back to the whole library", null)
+            photos = build(api, config, null, excluded)
             fellBack = true
+        }
+        val years = if (fellBack || config.mode == SlideshowMode.RANDOM || config.mode == SlideshowMode.RECENT) 0 else {
+            photos.mapNotNull { p -> p.localDate()?.let { if (season != null) Seasons.seasonYear(it) else it.year } }.distinct().size
         }
         val playlist = Playlist(
             key = cacheKey(config),
             photos = photos,
             stats = PlaylistStats(
+                mode = config.mode,
                 season = season,
-                seasonYears = years,
+                years = years,
                 excludedCount = excluded.size,
                 total = photos.size,
                 fellBackToAll = fellBack,
@@ -108,7 +125,7 @@ class PlaylistRepository(
         )
         withContext(Dispatchers.IO) { writeCache(playlist) }
         latest.value = playlist
-        log("Playlist built: ${photos.size} items, season=$season, excluded=${excluded.size}", null)
+        log("Playlist built: ${photos.size} items, mode=${config.mode}, season=$season, excluded=${excluded.size}", null)
         playlist
     }
 
@@ -117,56 +134,56 @@ class PlaylistRepository(
         withContext(Dispatchers.IO) { cacheFile.delete() }
     }
 
-    private suspend fun loadSeason(
-        api: ImmichApi,
-        config: SlideshowConfig,
-        season: Season?,
-        excluded: Set<String>,
-    ): Pair<List<Photo>, Int> {
+    /** Date ranges to search for this mode; null means the whole library. */
+    private suspend fun selection(api: ImmichApi, config: SlideshowConfig, season: Season?): List<DateRange>? =
+        when (config.mode) {
+            SlideshowMode.RANDOM -> null
+            SlideshowMode.RECENT -> listOf(Modes.recent(today(), config.recentDays))
+            SlideshowMode.SEASONAL -> {
+                val thisSeasonYear = Seasons.seasonYear(today())
+                val years = timelineMonths(api)?.let { Seasons.seasonYearsWithContent(season!!, it) }
+                    ?: (thisSeasonYear downTo FALLBACK_FIRST_YEAR).toList()
+                years.filter { it <= thisSeasonYear }.map { Seasons.range(season!!, it) }
+            }
+            SlideshowMode.ON_THIS_DAY -> {
+                val years = timelineMonths(api)?.let(Modes::yearsWithContent)
+                    ?: (today().year - 1 downTo FALLBACK_FIRST_YEAR).toList()
+                Modes.onThisDay(today(), years)
+            }
+        }
+
+    private suspend fun build(api: ImmichApi, config: SlideshowConfig, ranges: List<DateRange>?, excluded: Set<String>): List<Photo> {
         val base = SearchMetadataRequest(
             type = if (config.mediaFilter == MediaFilter.IMAGES_ONLY) "IMAGE" else null,
             isFavorite = if (config.favoritesOnly) true else null,
             withExif = true,
         )
-        if (season == null) {
-            val photos = searchAll(api, base).map { it.toPhoto() }
-            return build(photos, excluded, config) to 0
+        val candidates = if (ranges == null) {
+            searchAll(api, base).map { it.toPhoto() }
+        } else {
+            ranges.flatMap { range ->
+                // Immich filters on UTC; pad by a day and filter on local time below.
+                searchAll(
+                    api,
+                    base.copy(
+                        takenAfter = isoUtc(range.start.minusDays(1)),
+                        takenBefore = isoUtc(range.endExclusive.plusDays(1)),
+                    ),
+                ).map { it.toPhoto() }.filter { photo -> photo.localDate()?.let { it in range } ?: true }
+            }
         }
-        val years = seasonYears(api, season)
-        val candidates = years.flatMap { year ->
-            val range = Seasons.range(season, year)
-            // Immich filters on UTC; pad by a day and filter on local time below.
-            searchAll(
-                api,
-                base.copy(
-                    takenAfter = isoUtc(range.start.minusDays(1)),
-                    takenBefore = isoUtc(range.endExclusive.plusDays(1)),
-                ),
-            ).map { it.toPhoto() }.filter { photo -> photo.localDate()?.let { it in range } ?: true }
-        }
-        val photos = build(candidates, excluded, config)
-        val yearsWithPhotos = photos.mapNotNull { it.localDate()?.let(Seasons::seasonYear) }.distinct().size
-        return photos to yearsWithPhotos
+        return PlaylistBuilder.build(candidates, excluded, config.mediaFilter, config.favoritesOnly, config.effectiveOrder)
     }
 
-    private fun build(candidates: List<Photo>, excluded: Set<String>, config: SlideshowConfig) =
-        PlaylistBuilder.build(candidates, excluded, config.mediaFilter, config.favoritesOnly, config.order)
-
-    /** Season years worth querying, derived from the timeline so empty years cost nothing. */
-    private suspend fun seasonYears(api: ImmichApi, season: Season): List<Int> {
-        val thisSeasonYear = Seasons.seasonYear(today())
-        val fromTimeline = try {
-            val months = api.timeBuckets().filter { it.count > 0 }.mapNotNull {
-                runCatching { LocalDate.parse(it.timeBucket.take(10)) }.getOrNull()
-            }
-            Seasons.seasonYearsWithContent(season, months)
-        } catch (e: ImmichException) {
-            if (e is ImmichException.Unauthorized || e is ImmichException.Unreachable) throw e
-            log("Timeline buckets unavailable, scanning every year", e)
-            null
+    /** Months that have photos, from the timeline, so empty years cost no requests. Null if unavailable. */
+    private suspend fun timelineMonths(api: ImmichApi): List<LocalDate>? = try {
+        api.timeBuckets().filter { it.count > 0 }.mapNotNull {
+            runCatching { LocalDate.parse(it.timeBucket.take(10)) }.getOrNull()
         }
-        return (fromTimeline ?: (thisSeasonYear downTo FALLBACK_FIRST_YEAR).toList())
-            .filter { it <= thisSeasonYear }
+    } catch (e: ImmichException) {
+        if (e is ImmichException.Unauthorized || e is ImmichException.Unreachable) throw e
+        log("Timeline buckets unavailable, scanning every year", e)
+        null
     }
 
     private suspend fun excludedAssetIds(api: ImmichApi, albumIds: Set<String>): Set<String> {

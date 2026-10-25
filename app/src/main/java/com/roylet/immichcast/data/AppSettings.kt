@@ -45,6 +45,8 @@ class AppSettings(context: Context) {
             apiKey = prefs.getString(K_KEY, d.apiKey).orEmpty(),
             excludedAlbumIds = prefs.getStringSet(K_EXCLUDED, d.excludedAlbumIds).orEmpty().toSet(),
             mediaFilter = enumPref(K_MEDIA, d.mediaFilter),
+            mode = enumPref(K_MODE, d.mode),
+            recentDays = prefs.getInt(K_RECENT, d.recentDays),
             seasonSource = enumPref(K_SEASON, d.seasonSource),
             favoritesOnly = prefs.getBoolean(K_FAVORITES, d.favoritesOnly),
             order = enumPref(K_ORDER, d.order),
@@ -67,6 +69,8 @@ class AppSettings(context: Context) {
         putString(K_KEY, c.apiKey)
         putStringSet(K_EXCLUDED, c.excludedAlbumIds)
         putString(K_MEDIA, c.mediaFilter.name)
+        putString(K_MODE, c.mode.name)
+        putInt(K_RECENT, c.recentDays)
         putString(K_SEASON, c.seasonSource.name)
         putBoolean(K_FAVORITES, c.favoritesOnly)
         putString(K_ORDER, c.order.name)
@@ -91,6 +95,8 @@ class AppSettings(context: Context) {
         const val K_KEY = "api_key"
         const val K_EXCLUDED = "excluded_album_ids"
         const val K_MEDIA = "media_filter"
+        const val K_MODE = "mode"
+        const val K_RECENT = "recent_days"
         const val K_SEASON = "season_source"
         const val K_FAVORITES = "favorites_only"
         const val K_ORDER = "order"

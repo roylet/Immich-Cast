@@ -113,7 +113,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.CenterMessage(content
 
 @Composable
 private fun AlbumCard(album: AlbumDto, api: ImmichApi?, excluded: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    BrutalSurface(onClick, modifier.fillMaxWidth(), shadow = if (excluded) 0.dp else 4.dp) { focused ->
+    BrutalSurface(onClick, modifier.fillMaxWidth(), shadow = if (excluded) 0.dp else 4.dp) { _ ->
         Column {
             Box(Modifier.fillMaxWidth().aspectRatio(16f / 10f).background(Palette.Secondary)) {
                 val thumb = album.albumThumbnailAssetId
@@ -146,7 +146,7 @@ private fun AlbumCard(album: AlbumDto, api: ImmichApi?, excluded: Boolean, onCli
                 Text(
                     pluralStringResource(R.plurals.items_count, album.assetCount, NumberFormat.getIntegerInstance().format(album.assetCount)),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (focused) Palette.OnPrimary.copy(alpha = 0.75f) else Palette.TextMuted,
+                    color = Palette.TextMuted,
                 )
             }
         }

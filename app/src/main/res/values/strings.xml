@@ -8,14 +8,28 @@
     <string name="season_summer">Summer</string>
     <string name="season_autumn">Autumn</string>
     <string name="season_winter">Winter</string>
-    <string name="season_all">All photos</string>
     <string name="season_spring_months">September – November, every year</string>
     <string name="season_summer_months">December – February, every year</string>
     <string name="season_autumn_months">March – May, every year</string>
     <string name="season_winter_months">June – August, every year</string>
     <string name="season_source_automatic">Current season</string>
     <string name="season_source_automatic_desc">Follows the calendar and switches automatically</string>
-    <string name="season_all_desc">Your whole library, ignoring seasons</string>
+
+    <!-- Slideshow modes -->
+    <string name="mode_seasonal">Seasonal</string>
+    <string name="mode_seasonal_desc">This season\'s photos from every year</string>
+    <string name="mode_random">Random</string>
+    <string name="mode_random_desc">Your whole library, shuffled</string>
+    <string name="mode_recent">Recent</string>
+    <string name="mode_recent_desc">Photos from the last few weeks or months</string>
+    <string name="mode_on_this_day">On this day</string>
+    <string name="mode_on_this_day_desc">This week in past years, changing daily</string>
+    <plurals name="recent_days">
+        <item quantity="one">Last %d day</item>
+        <item quantity="other">Last %d days</item>
+    </plurals>
+    <string name="recent_year">Last 12 months</string>
+    <string name="on_this_day_window">%1$s, give or take 3 days, every past year</string>
 
     <!-- Option labels -->
     <string name="media_images_only">Photos only</string>
@@ -72,6 +86,9 @@
     <string name="section_app">App</string>
 
     <!-- Settings: rows -->
+    <string name="setting_mode">Show</string>
+    <string name="setting_mode_desc">What the slideshow picks photos from</string>
+    <string name="setting_recent_span">Time span</string>
     <string name="setting_season">Season</string>
     <string name="setting_season_desc">Photos taken in this season, from every year</string>
     <string name="setting_excluded_albums">Excluded albums</string>
@@ -135,7 +152,7 @@
     <string name="status_building">Building your slideshow…</string>
     <string name="status_not_built">Not loaded yet</string>
     <string name="status_error">Couldn\'t update: %s</string>
-    <string name="status_fallback">Nothing from this season yet, so the whole library is shown</string>
+    <string name="status_fallback">Nothing matched yet, so the whole library is shown</string>
 
     <!-- Plurals -->
     <plurals name="albums_count">
@@ -172,10 +189,10 @@
     <string name="albums_empty">You don\'t have any albums yet.</string>
 
     <!-- Setup -->
-    <string name="setup_tagline">Your Immich photos, season by season, as your TV screensaver.</string>
+    <string name="setup_tagline">Your Immich photos as your TV screensaver: by season, at random, recent, or on this day.</string>
     <string name="setup_welcome_title">Welcome</string>
     <string name="setup_welcome_body">Let\'s connect to your Immich server. It takes about a minute.</string>
-    <string name="setup_welcome_point_seasons">Shows photos from the current season across all your years</string>
+    <string name="setup_welcome_point_seasons">Seasonal, random, recent or on-this-day slideshows</string>
     <string name="setup_welcome_point_exclude">Hide any album you don\'t want on the big screen</string>
     <string name="setup_welcome_point_private">Talks only to your own server</string>
     <string name="setup_server_title">Server address</string>
@@ -216,7 +233,7 @@
     <string name="dream_empty_body">Check your season and excluded albums in the Immich Cast app.</string>
     <string name="dream_offline_title">Waiting for your server</string>
     <string name="dream_offline_body">Photos will resume when the connection is back.</string>
-    <string name="dream_notice_fallback">No %1$s photos yet, so your whole library is shown</string>
+    <string name="dream_notice_fallback">Nothing for today yet, so your whole library is shown</string>
     <string name="preview_hint">Previewing · press any button to exit</string>
 
     <!-- Errors -->

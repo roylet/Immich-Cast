@@ -40,11 +40,11 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 
-val BrutalShape = RoundedCornerShape(4.dp)
-val BrutalBorder = 2.dp
+val BrutalShape = RoundedCornerShape(10.dp)
+val BrutalBorder = 1.5.dp
 
-/** A solid, unblurred copy of [shape] drawn down-right of the content: the signature brutalist shadow. */
-fun Modifier.hardShadow(offset: Dp = 4.dp, color: Color = Palette.Ink, shape: Shape = BrutalShape): Modifier =
+/** A solid, unblurred copy of [shape] drawn down-right of the content: the theme's offset shadow. */
+fun Modifier.hardShadow(offset: Dp = 4.dp, color: Color = Palette.Shadow, shape: Shape = BrutalShape): Modifier =
     if (offset <= 0.dp) this else drawBehind {
         val outline = shape.createOutline(size, layoutDirection, this)
         translate(offset.toPx(), offset.toPx()) { drawOutline(outline, color) }
@@ -70,13 +70,13 @@ fun Modifier.dotGrid(color: Color = Palette.Dot, spacing: Dp = 22.dp, radius: Dp
 fun BrutalCard(
     modifier: Modifier = Modifier,
     container: Color = Palette.Card,
-    borderColor: Color = Palette.Ink,
+    borderColor: Color = Palette.Line,
     shadow: Dp = 4.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier
-            .hardShadow(shadow, borderColor)
+            .hardShadow(shadow)
             .background(container, BrutalShape)
             .border(BrutalBorder, borderColor, BrutalShape),
         content = content,
@@ -86,8 +86,9 @@ fun BrutalCard(
 enum class BrutalStyle { PRIMARY, OUTLINE, GHOST }
 
 /**
- * Focusable surface with the brutalist treatment. Focus is what a TV remote "hovers", so a
- * focused surface turns orange and lifts up-left off its shadow; that reads clearly from the sofa.
+ * Focusable surface. Focus is what a TV remote "hovers": a focused surface gets a warm tint and an
+ * orange outline (primary buttons brighten) and lifts slightly off its shadow, so it reads from
+ * the sofa without a glaring block of colour.
  */
 @Composable
 fun BrutalSurface(
@@ -107,7 +108,9 @@ fun BrutalSurface(
         style == BrutalStyle.GHOST -> Color.Transparent
         else -> Palette.Card
     }
-    val focusedContainer = if (style == BrutalStyle.PRIMARY) Palette.Ink else Palette.Primary
+    val primary = style == BrutalStyle.PRIMARY
+    val focusedContainer = if (primary) Palette.PrimaryFocused else Palette.FocusFill
+    val contentColor = if (primary) Palette.OnPrimary else Palette.Text
     val outlined = style != BrutalStyle.GHOST || selected
     val lift = if (focused && outlined) 2.dp else 0.dp
     Surface(
@@ -120,16 +123,20 @@ fun BrutalSurface(
         shape = ClickableSurfaceDefaults.shape(BrutalShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 1f),
         border = ClickableSurfaceDefaults.border(
-            border = if (outlined) Border(BorderStroke(BrutalBorder, Palette.Ink), shape = BrutalShape) else Border.None,
-            focusedBorder = Border(BorderStroke(BrutalBorder, Palette.Ink), shape = BrutalShape),
+            border = if (outlined && style != BrutalStyle.PRIMARY && !selected) {
+                Border(BorderStroke(BrutalBorder, Palette.Line), shape = BrutalShape)
+            } else {
+                Border.None
+            },
+            focusedBorder = if (primary) Border.None else Border(BorderStroke(2.dp, Palette.Primary), shape = BrutalShape),
         ),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = container,
-            contentColor = if (style == BrutalStyle.PRIMARY) Palette.OnPrimary else Palette.Text,
+            contentColor = contentColor,
             focusedContainerColor = focusedContainer,
-            focusedContentColor = Palette.OnPrimary,
+            focusedContentColor = contentColor,
             pressedContainerColor = focusedContainer,
-            pressedContentColor = Palette.OnPrimary,
+            pressedContentColor = contentColor,
             disabledContainerColor = container.copy(alpha = 0.4f),
             disabledContentColor = Palette.TextMuted,
         ),
@@ -139,7 +146,7 @@ fun BrutalSurface(
     }
 }
 
-/** ImmichUp's chunky uppercase button. */
+/** Uppercase button in the theme's display type. */
 @Composable
 fun BrutalButton(
     text: String,
@@ -163,65 +170,59 @@ fun BrutalButton(
     }
 }
 
-/** Small uppercase tag with an outline, e.g. a season or "Excluded". */
+/** Small uppercase tag, e.g. a season or "Excluded". */
 @Composable
 fun BrutalBadge(text: String, container: Color, modifier: Modifier = Modifier, content: Color = Palette.OnPrimary) {
     Box(
         modifier
-            .background(container, RoundedCornerShape(3.dp))
-            .border(BrutalBorder, Palette.OnPrimary, RoundedCornerShape(3.dp))
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+            .background(container, RoundedCornerShape(6.dp))
+            .padding(horizontal = 9.dp, vertical = 4.dp),
     ) {
         Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = content)
     }
 }
 
-/** Square toggle drawn in the current content colour, so it works on focused (orange) rows too. */
+/** Toggle: orange track when on, outline in the current content colour when off. */
 @Composable
 fun BrutalToggle(checked: Boolean, focused: Boolean, modifier: Modifier = Modifier) {
     val ink = LocalContentColor.current
-    val track = when {
-        checked && focused -> Palette.OnPrimary
-        checked -> Palette.Primary
-        else -> Color.Transparent
-    }
+    val track = if (checked) Palette.Primary else Color.Transparent
     Box(
         modifier
             .size(46.dp, 26.dp)
-            .background(track, RoundedCornerShape(3.dp))
-            .border(BrutalBorder, ink, RoundedCornerShape(3.dp))
+            .background(track, RoundedCornerShape(13.dp))
+            .border(BrutalBorder, if (checked) track else ink.copy(alpha = 0.6f), RoundedCornerShape(13.dp))
             .padding(4.dp),
         contentAlignment = if (checked) Alignment.CenterEnd else Alignment.CenterStart,
     ) {
         Box(
             Modifier.size(16.dp).background(
-                if (checked) (if (focused) Palette.Primary else Palette.OnPrimary) else ink,
-                RoundedCornerShape(2.dp),
+                if (checked) Palette.OnPrimary else ink.copy(alpha = if (focused) 1f else 0.8f),
+                RoundedCornerShape(8.dp),
             ),
         )
     }
 }
 
-/** Square check/radio indicator, filled when selected. */
+/** Check/radio indicator, filled when selected. */
 @Composable
 fun BrutalCheck(checked: Boolean, modifier: Modifier = Modifier) {
     val ink = LocalContentColor.current
     Box(
         modifier
             .size(22.dp)
-            .background(if (checked) ink else Color.Transparent, RoundedCornerShape(3.dp))
-            .border(BrutalBorder, ink, RoundedCornerShape(3.dp)),
+            .background(if (checked) Palette.Primary else Color.Transparent, RoundedCornerShape(6.dp))
+            .border(BrutalBorder, if (checked) Palette.Primary else ink.copy(alpha = 0.6f), RoundedCornerShape(6.dp)),
         contentAlignment = Alignment.Center,
     ) {
         if (checked) {
-            Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(16.dp),
-                tint = if (ink == Palette.OnPrimary) Palette.Primary else Palette.OnPrimary)
+            Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(16.dp), tint = Palette.OnPrimary)
         }
     }
 }
 
-/** 2dp rule used between rows inside a card. */
+/** Thin rule used between rows inside a card. */
 @Composable
 fun BrutalDivider(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxWidth().height(BrutalBorder).background(Palette.Ink))
+    Box(modifier.fillMaxWidth().height(1.dp).background(Palette.Line))
 }

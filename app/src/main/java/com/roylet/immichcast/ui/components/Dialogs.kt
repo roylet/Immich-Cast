@@ -75,7 +75,7 @@ fun <T> ChoiceDialog(
 ) {
     val focus = remember { FocusRequester() }
     DialogFrame(title, subtitle, onDismiss) {
-        Box(Modifier.border(BrutalBorder, Palette.Ink, BrutalShape)) {
+        Box(Modifier.border(BrutalBorder, Palette.Line, BrutalShape)) {
             LazyColumn(Modifier.heightIn(max = 360.dp)) {
                 itemsIndexed(options) { index, option ->
                     if (index > 0) RowDivider()
@@ -116,7 +116,7 @@ fun TextInputDialog(
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 }
 
-/** ImmichUp's input: outlined with a small hard shadow; when focused it turns orange and presses into the shadow. */
+/** Outlined input with a small offset shadow; when focused it turns orange and presses into the shadow. */
 @Composable
 fun TvTextField(
     value: TextFieldValue,
@@ -149,7 +149,7 @@ fun TvTextField(
                     .offset(press, press)
                     .hardShadow(3.dp - press)
                     .background(Palette.Card, BrutalShape)
-                    .border(BrutalBorder, if (focused) Palette.Primary else Palette.Ink, BrutalShape)
+                    .border(BrutalBorder, if (focused) Palette.Primary else Palette.Line, BrutalShape)
                     .padding(horizontal = 16.dp, vertical = 14.dp),
             ) {
                 if (value.text.isEmpty() && placeholder != null) {
