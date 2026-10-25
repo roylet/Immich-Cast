@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -42,6 +43,15 @@ import androidx.tv.material3.Text
 
 val BrutalShape = RoundedCornerShape(10.dp)
 val BrutalBorder = 1.5.dp
+
+/** Black outline on orange elements (buttons, tags, number badges). */
+val InkOutline = 2.dp
+
+/**
+ * Shadow for inked (black-outlined) elements: a deep shade of their own colour, so the black
+ * edge reads against the dark page the way the banner's tag does against the photo scenes.
+ */
+fun inkShadow(color: Color): Color = lerp(color, Color.Black, 0.6f)
 
 /** A solid, unblurred copy of [shape] drawn down-right of the content: the theme's offset shadow. */
 fun Modifier.hardShadow(offset: Dp = 4.dp, color: Color = Palette.Shadow, shape: Shape = BrutalShape): Modifier =
@@ -119,16 +129,21 @@ fun BrutalSurface(
         interactionSource = interaction,
         modifier = modifier
             .offset(-lift, -lift)
-            .hardShadow(if (outlined) shadow + lift else 0.dp),
+            .hardShadow(if (outlined) shadow + lift else 0.dp, if (primary) inkShadow(Palette.Primary) else Palette.Shadow),
         shape = ClickableSurfaceDefaults.shape(BrutalShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = 1f),
         border = ClickableSurfaceDefaults.border(
-            border = if (outlined && style != BrutalStyle.PRIMARY && !selected) {
-                Border(BorderStroke(BrutalBorder, Palette.Line), shape = BrutalShape)
-            } else {
-                Border.None
+            border = when {
+                // Orange buttons keep the black inked edge from the banner's tag.
+                primary -> Border(BorderStroke(InkOutline, Palette.OnPrimary), shape = BrutalShape)
+                outlined && !selected -> Border(BorderStroke(BrutalBorder, Palette.Line), shape = BrutalShape)
+                else -> Border.None
             },
-            focusedBorder = if (primary) Border.None else Border(BorderStroke(2.dp, Palette.Primary), shape = BrutalShape),
+            focusedBorder = if (primary) {
+                Border(BorderStroke(InkOutline, Palette.OnPrimary), shape = BrutalShape)
+            } else {
+                Border(BorderStroke(2.dp, Palette.Primary), shape = BrutalShape)
+            },
         ),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = container,
@@ -170,12 +185,14 @@ fun BrutalButton(
     }
 }
 
-/** Small uppercase tag, e.g. a season or "Excluded". */
+/** Small uppercase tag with a black outline, e.g. a season or "Excluded". */
 @Composable
 fun BrutalBadge(text: String, container: Color, modifier: Modifier = Modifier, content: Color = Palette.OnPrimary) {
     Box(
         modifier
-            .background(container, RoundedCornerShape(6.dp))
+            .hardShadow(2.dp, inkShadow(container), RoundedCornerShape(4.dp))
+            .background(container, RoundedCornerShape(4.dp))
+            .border(InkOutline, Palette.OnPrimary, RoundedCornerShape(4.dp))
             .padding(horizontal = 9.dp, vertical = 4.dp),
     ) {
         Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = content)

@@ -64,7 +64,10 @@ import com.roylet.immichcast.ui.theme.BrutalBadge
 import com.roylet.immichcast.ui.theme.BrutalButton
 import com.roylet.immichcast.ui.theme.BrutalCard
 import com.roylet.immichcast.ui.theme.BrutalStyle
+import com.roylet.immichcast.ui.theme.InkOutline
 import com.roylet.immichcast.ui.theme.Palette
+import com.roylet.immichcast.ui.theme.hardShadow
+import com.roylet.immichcast.ui.theme.inkShadow
 import com.roylet.immichcast.ui.theme.dotGrid
 
 private enum class Step { WELCOME, SERVER, KEY, CONNECT, ALBUMS, DONE }
@@ -189,7 +192,8 @@ private fun StepHeader(title: String, body: String, number: Int? = null) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             number?.let {
                 Box(
-                    Modifier.size(34.dp).background(Palette.Primary, RoundedCornerShape(8.dp)),
+                    Modifier.size(34.dp).hardShadow(3.dp, inkShadow(Palette.Primary), RoundedCornerShape(6.dp)).background(Palette.Primary, RoundedCornerShape(6.dp))
+                        .border(InkOutline, Palette.OnPrimary, RoundedCornerShape(6.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(it.toString(), style = MaterialTheme.typography.titleMedium, color = Palette.OnPrimary)
@@ -220,7 +224,9 @@ private fun Welcome(onStart: () -> Unit) {
 private fun Bullet(text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
-            Modifier.size(24.dp).background(Palette.Primary, RoundedCornerShape(7.dp)),
+            Modifier.size(24.dp).hardShadow(2.dp, inkShadow(Palette.Primary), RoundedCornerShape(5.dp))
+                .background(Palette.Primary, RoundedCornerShape(5.dp))
+                .border(InkOutline, Palette.OnPrimary, RoundedCornerShape(5.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(Icons.Rounded.Check, contentDescription = null, tint = Palette.OnPrimary, modifier = Modifier.size(16.dp))
