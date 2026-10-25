@@ -17,6 +17,9 @@ enum class SlideshowMode {
 
     /** Photos taken around today's date in previous years. */
     ON_THIS_DAY,
+
+    /** Photos taken in the current calendar month, across every year. */
+    THIS_MONTH,
 }
 
 enum class SeasonSource(val fixedSeason: Season?) {
@@ -45,6 +48,8 @@ data class SlideshowConfig(
     val serverUrl: String = "",
     val apiKey: String = "",
     val excludedAlbumIds: Set<String> = emptySet(),
+    /** When non-empty, only photos in these albums are shown. */
+    val includedAlbumIds: Set<String> = emptySet(),
     val mode: SlideshowMode = SlideshowMode.SEASONAL,
     val recentDays: Int = DEFAULT_RECENT_DAYS,
     val mediaFilter: MediaFilter = MediaFilter.IMAGES_ONLY,
@@ -71,6 +76,7 @@ data class SlideshowConfig(
         get() = listOf(
             serverUrl.trimEnd('/'),
             excludedAlbumIds.sorted().joinToString(","),
+            includedAlbumIds.sorted().joinToString(","),
             mediaFilter.name,
             mode.name,
             when (mode) {

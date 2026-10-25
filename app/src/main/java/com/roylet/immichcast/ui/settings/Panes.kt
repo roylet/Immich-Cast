@@ -58,6 +58,7 @@ import com.roylet.immichcast.core.SeasonSource
 import com.roylet.immichcast.core.SlideshowConfig
 import com.roylet.immichcast.core.SlideshowMode
 import com.roylet.immichcast.core.Transition
+import com.roylet.immichcast.ui.AlbumSelection
 import com.roylet.immichcast.ui.ConnectionState
 import com.roylet.immichcast.ui.SettingsViewModel
 import com.roylet.immichcast.ui.components.ActionRow
@@ -109,7 +110,7 @@ fun durationLabel(seconds: Int): String =
     if (seconds < 60) pluralStringResource(R.plurals.duration_seconds, seconds, seconds)
     else pluralStringResource(R.plurals.duration_minutes, seconds / 60, seconds / 60)
 
-fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onOpenAlbums: () -> Unit) {
+fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onOpenAlbums: (AlbumSelection) -> Unit) {
     item {
         SettingsSection(stringResource(R.string.section_what_to_show)) {
             ChoiceRow(
@@ -150,8 +151,18 @@ fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onO
                         onSelect = { v -> vm.update { it.copy(recentDays = v) } },
                     )
                 }
-                SlideshowMode.RANDOM, SlideshowMode.ON_THIS_DAY -> Unit
+                SlideshowMode.RANDOM, SlideshowMode.ON_THIS_DAY, SlideshowMode.THIS_MONTH -> Unit
             }
+            RowDivider()
+            val included = config.includedAlbumIds.size
+            ValueRow(
+                icon = Icons.Rounded.PhotoAlbum,
+                title = stringResource(R.string.setting_included_albums),
+                description = stringResource(R.string.setting_included_albums_desc),
+                value = if (included == 0) stringResource(R.string.value_all_albums)
+                else pluralStringResource(R.plurals.albums_count, included, included),
+                onClick = { onOpenAlbums(AlbumSelection.INCLUDE) },
+            )
             RowDivider()
             val count = config.excludedAlbumIds.size
             ValueRow(
@@ -160,7 +171,7 @@ fun LazyListScope.photosPane(config: SlideshowConfig, vm: SettingsViewModel, onO
                 description = stringResource(R.string.setting_excluded_albums_desc),
                 value = if (count == 0) stringResource(R.string.value_none)
                 else pluralStringResource(R.plurals.albums_count, count, count),
-                onClick = onOpenAlbums,
+                onClick = { onOpenAlbums(AlbumSelection.EXCLUDE) },
             )
             RowDivider()
             ChoiceRow(
@@ -417,7 +428,12 @@ fun LazyListScope.advancedPane(config: SlideshowConfig, vm: SettingsViewModel) {
                 description = stringResource(R.string.action_reset_display_desc),
                 onClick = {
                     vm.update { c ->
-                        SlideshowConfig(serverUrl = c.serverUrl, apiKey = c.apiKey, excludedAlbumIds = c.excludedAlbumIds)
+                        SlideshowConfig(
+                            serverUrl = c.serverUrl,
+                            apiKey = c.apiKey,
+                            excludedAlbumIds = c.excludedAlbumIds,
+                            includedAlbumIds = c.includedAlbumIds,
+                        )
                     }
                 },
             )

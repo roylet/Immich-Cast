@@ -51,6 +51,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.roylet.immichcast.R
+import com.roylet.immichcast.ui.AlbumSelection
 import com.roylet.immichcast.ui.PreviewActivity
 import com.roylet.immichcast.ui.SettingsViewModel
 import com.roylet.immichcast.ui.theme.BrutalButton
@@ -71,7 +72,7 @@ enum class Category(val icon: ImageVector, val label: Int) {
 @Composable
 fun SettingsScreen(
     vm: SettingsViewModel,
-    onOpenAlbums: () -> Unit,
+    onOpenAlbums: (AlbumSelection) -> Unit,
     onRunSetup: () -> Unit,
     initialCategory: Category = Category.PHOTOS,
 ) {

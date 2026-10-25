@@ -44,6 +44,7 @@ class AppSettings(context: Context) {
             serverUrl = prefs.getString(K_URL, d.serverUrl).orEmpty(),
             apiKey = prefs.getString(K_KEY, d.apiKey).orEmpty(),
             excludedAlbumIds = prefs.getStringSet(K_EXCLUDED, d.excludedAlbumIds).orEmpty().toSet(),
+            includedAlbumIds = prefs.getStringSet(K_INCLUDED, d.includedAlbumIds).orEmpty().toSet(),
             mediaFilter = enumPref(K_MEDIA, d.mediaFilter),
             mode = enumPref(K_MODE, d.mode),
             recentDays = prefs.getInt(K_RECENT, d.recentDays),
@@ -68,6 +69,7 @@ class AppSettings(context: Context) {
         putString(K_URL, c.serverUrl)
         putString(K_KEY, c.apiKey)
         putStringSet(K_EXCLUDED, c.excludedAlbumIds)
+        putStringSet(K_INCLUDED, c.includedAlbumIds)
         putString(K_MEDIA, c.mediaFilter.name)
         putString(K_MODE, c.mode.name)
         putInt(K_RECENT, c.recentDays)
@@ -94,6 +96,7 @@ class AppSettings(context: Context) {
         const val K_URL = "server_url"
         const val K_KEY = "api_key"
         const val K_EXCLUDED = "excluded_album_ids"
+        const val K_INCLUDED = "included_album_ids"
         const val K_MEDIA = "media_filter"
         const val K_MODE = "mode"
         const val K_RECENT = "recent_days"

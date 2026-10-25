@@ -21,7 +21,7 @@ import com.roylet.immichcast.ui.settings.SettingsScreen
 import com.roylet.immichcast.ui.setup.SetupWizard
 import com.roylet.immichcast.ui.theme.ImmichCastTheme
 
-private enum class Screen { SETUP, SETTINGS, ALBUMS }
+private enum class Screen { SETUP, SETTINGS, ALBUMS, INCLUDED_ALBUMS }
 
 /**
  * Launcher entry and the screensaver's settings activity.
@@ -49,7 +49,7 @@ class SettingsActivity : ComponentActivity() {
                     configuredExternally = false
                 }
 
-                BackHandler(enabled = screen == Screen.ALBUMS) { screen = Screen.SETTINGS }
+                BackHandler(enabled = screen == Screen.ALBUMS || screen == Screen.INCLUDED_ALBUMS) { screen = Screen.SETTINGS }
 
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     Crossfade(targetState = screen, label = "screen") { current ->
@@ -61,10 +61,11 @@ class SettingsActivity : ComponentActivity() {
                             )
                             Screen.SETTINGS -> SettingsScreen(
                                 vm,
-                                onOpenAlbums = { screen = Screen.ALBUMS },
+                                onOpenAlbums = { screen = if (it == AlbumSelection.INCLUDE) Screen.INCLUDED_ALBUMS else Screen.ALBUMS },
                                 onRunSetup = { screen = Screen.SETUP },
                             )
                             Screen.ALBUMS -> AlbumPickerScreen(vm)
+                            Screen.INCLUDED_ALBUMS -> AlbumPickerScreen(vm, AlbumSelection.INCLUDE)
                         }
                     }
                 }

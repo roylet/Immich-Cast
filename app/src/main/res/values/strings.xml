@@ -24,6 +24,9 @@
     <string name="mode_recent_desc">Photos from the last few weeks or months</string>
     <string name="mode_on_this_day">On this day</string>
     <string name="mode_on_this_day_desc">This week in past years, changing daily</string>
+    <string name="mode_this_month">This month</string>
+    <string name="mode_this_month_desc">This month\'s photos from every year</string>
+    <string name="this_month_window">%s, every year</string>
     <plurals name="recent_days">
         <item quantity="one">Last %d day</item>
         <item quantity="other">Last %d days</item>
@@ -91,6 +94,9 @@
     <string name="setting_recent_span">Time span</string>
     <string name="setting_season">Season</string>
     <string name="setting_season_desc">Photos taken in this season, from every year</string>
+    <string name="setting_included_albums">Included albums</string>
+    <string name="setting_included_albums_desc">Only show photos from these albums</string>
+    <string name="value_all_albums">All albums</string>
     <string name="setting_excluded_albums">Excluded albums</string>
     <string name="setting_excluded_albums_desc">Photos in these albums never appear</string>
     <string name="setting_media">Media</string>
@@ -131,7 +137,7 @@
     <string name="action_clear_cache">Clear cache</string>
     <string name="action_clear_cache_desc">Delete downloaded photos and rebuild the list</string>
     <string name="action_reset_display">Restore default settings</string>
-    <string name="action_reset_display_desc">Keeps your server and excluded albums</string>
+    <string name="action_reset_display_desc">Keeps your server and album choices</string>
 
     <!-- Connection -->
     <string name="connection_idle">Check that the server and key work</string>
@@ -152,12 +158,21 @@
     <string name="status_building">Building your slideshow…</string>
     <string name="status_not_built">Not loaded yet</string>
     <string name="status_error">Couldn\'t update: %s</string>
+    <plurals name="status_included_albums">
+        <item quantity="one">from %d album</item>
+        <item quantity="other">from %d albums</item>
+    </plurals>
+    <string name="status_fallback_albums">Nothing matched yet, so everything in your included albums is shown</string>
     <string name="status_fallback">Nothing matched yet, so the whole library is shown</string>
 
     <!-- Plurals -->
     <plurals name="albums_count">
         <item quantity="one">%d album</item>
         <item quantity="other">%d albums</item>
+    </plurals>
+    <plurals name="albums_included_count">
+        <item quantity="one">%d album included</item>
+        <item quantity="other">%d albums included</item>
     </plurals>
     <plurals name="albums_excluded_count">
         <item quantity="one">%d album excluded</item>
@@ -185,6 +200,10 @@
     <string name="albums_subtitle">Select albums to hide. Their photos are never shown, even if they are also in other albums.</string>
     <string name="albums_none_excluded">No albums excluded</string>
     <string name="albums_excluded_badge">Excluded</string>
+    <string name="albums_include_title">Include albums</string>
+    <string name="albums_include_subtitle">Select albums to show. Only their photos appear. Leave all unselected to use your whole library.</string>
+    <string name="albums_none_included">Whole library</string>
+    <string name="albums_included_badge">Included</string>
     <string name="albums_untitled">Untitled album</string>
     <string name="albums_empty">You don\'t have any albums yet.</string>
 

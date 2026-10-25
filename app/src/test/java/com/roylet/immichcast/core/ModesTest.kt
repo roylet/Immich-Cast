@@ -32,6 +32,15 @@ class ModesTest {
     }
 
     @Test
+    fun `this month covers the whole calendar month in this and earlier years`() {
+        val ranges = Modes.thisMonth(LocalDate.of(2028, 2, 29), listOf(2029, 2027, 2028))
+        assertEquals(listOf(2028, 2027), ranges.map { it.start.year })
+        assertEquals(LocalDate.of(2027, 2, 1), ranges[1].start)
+        assertEquals(LocalDate.of(2027, 3, 1), ranges[1].endExclusive)
+        assertTrue(LocalDate.of(2028, 2, 29) in ranges[0])
+    }
+
+    @Test
     fun `leap day maps to the 28th in other years`() {
         val ranges = Modes.onThisDay(LocalDate.of(2028, 2, 29), listOf(2027))
         assertTrue(LocalDate.of(2027, 2, 28) in ranges.single())

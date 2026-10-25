@@ -57,6 +57,10 @@ fun StatusCard(status: StatusState, config: SlideshowConfig, season: Season?, mo
                     R.string.on_this_day_window,
                     LocalDate.now().format(DateTimeFormatter.ofPattern("d MMMM")),
                 )
+                SlideshowMode.THIS_MONTH -> stringResource(
+                    R.string.this_month_window,
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM")),
+                )
                 SlideshowMode.RANDOM -> stringResource(R.string.mode_random_desc)
                 SlideshowMode.RECENT -> null
             }
@@ -69,13 +73,17 @@ fun StatusCard(status: StatusState, config: SlideshowConfig, season: Season?, mo
                     )
                     val details = buildList {
                         if (stats.years > 0) add(pluralStringResource(R.plurals.status_years, stats.years, stats.years))
+                        if (stats.includedAlbums > 0) {
+                            add(pluralStringResource(R.plurals.status_included_albums, stats.includedAlbums, stats.includedAlbums))
+                        }
                         if (stats.excludedCount > 0) add(stringResource(R.string.status_excluded, numbers.format(stats.excludedCount)))
                     }.joinToString(" · ")
                     if (details.isNotEmpty()) {
                         Text(details, style = MaterialTheme.typography.bodySmall, color = Palette.TextMuted)
                     }
                     if (stats.fellBackToAll) {
-                        Text(stringResource(R.string.status_fallback), style = MaterialTheme.typography.bodySmall, color = Palette.Warning)
+                        val fallback = if (stats.includedAlbums > 0) R.string.status_fallback_albums else R.string.status_fallback
+                        Text(stringResource(fallback), style = MaterialTheme.typography.bodySmall, color = Palette.Warning)
                     }
                     Text(
                         stringResource(R.string.status_updated, formatTime(stats.builtAtMillis)).uppercase(),

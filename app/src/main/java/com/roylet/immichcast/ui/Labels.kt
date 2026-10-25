@@ -55,6 +55,7 @@ val SlideshowMode.labelRes: Int
         SlideshowMode.RANDOM -> R.string.mode_random
         SlideshowMode.RECENT -> R.string.mode_recent
         SlideshowMode.ON_THIS_DAY -> R.string.mode_on_this_day
+        SlideshowMode.THIS_MONTH -> R.string.mode_this_month
     }
 
 @get:StringRes
@@ -64,6 +65,7 @@ val SlideshowMode.descriptionRes: Int
         SlideshowMode.RANDOM -> R.string.mode_random_desc
         SlideshowMode.RECENT -> R.string.mode_recent_desc
         SlideshowMode.ON_THIS_DAY -> R.string.mode_on_this_day_desc
+        SlideshowMode.THIS_MONTH -> R.string.mode_this_month_desc
     }
 
 /** Accent used for a mode's badge; seasonal uses the season's own colour. */
@@ -73,6 +75,7 @@ val SlideshowMode.accent: Color
         SlideshowMode.RANDOM -> Color(0xFFFF8A5C)
         SlideshowMode.RECENT -> Color(0xFF8EC5FF)
         SlideshowMode.ON_THIS_DAY -> Color(0xFFFFC857)
+        SlideshowMode.THIS_MONTH -> Color(0xFFC9A0FF)
     }
 
 @get:StringRes

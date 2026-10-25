@@ -27,6 +27,13 @@ object Modes {
             DateRange(centre.minusDays(window.toLong()), centre.plusDays(window + 1L))
         }
 
+    /** Today's calendar month in each year in [years] up to this one, newest first. */
+    fun thisMonth(today: LocalDate, years: Iterable<Int>): List<DateRange> =
+        years.filter { it <= today.year }.distinct().sortedDescending().map { year ->
+            val start = today.withYear(year).withDayOfMonth(1)
+            DateRange(start, start.plusMonths(1))
+        }
+
     /** Distinct years among timeline months, newest first. */
     fun yearsWithContent(monthsWithContent: Iterable<LocalDate>): List<Int> =
         monthsWithContent.map { it.year }.distinct().sortedDescending()

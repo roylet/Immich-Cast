@@ -147,6 +147,10 @@ class SettingsViewModel(
         it.copy(excludedAlbumIds = if (albumId in it.excludedAlbumIds) it.excludedAlbumIds - albumId else it.excludedAlbumIds + albumId)
     }
 
+    fun toggleIncluded(albumId: String) = settings.update {
+        it.copy(includedAlbumIds = if (albumId in it.includedAlbumIds) it.includedAlbumIds - albumId else it.includedAlbumIds + albumId)
+    }
+
     fun refreshNow() {
         if (refreshJob?.isActive == true) return
         val current = settings.current

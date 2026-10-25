@@ -34,6 +34,8 @@ data class PlaylistStats(
     /** Distinct years the photos come from (seasonal and on-this-day modes). */
     val years: Int = 0,
     val excludedCount: Int = 0,
+    /** Albums the slideshow is limited to; 0 means the whole library. */
+    val includedAlbums: Int = 0,
     val total: Int = 0,
     val fellBackToAll: Boolean = false,
     val builtAtMillis: Long = 0,
@@ -67,11 +69,12 @@ class PlaylistRepository(
 
     /**
      * Identifies the photo selection. Besides the settings it includes whatever moves with
-     * the calendar: the season, or today's date for the recent and on-this-day modes.
+     * the calendar: the season, the month, or today's date for the recent and on-this-day modes.
      */
     fun cacheKey(config: SlideshowConfig): String {
         val moving = when (config.mode) {
             SlideshowMode.SEASONAL -> effectiveSeason(config)?.name
+            SlideshowMode.THIS_MONTH -> today().withDayOfMonth(1).toString()
             SlideshowMode.RECENT, SlideshowMode.ON_THIS_DAY -> today().toString()
             SlideshowMode.RANDOM -> null
         }
@@ -118,6 +121,7 @@ class PlaylistRepository(
                 season = season,
                 years = years,
                 excludedCount = excluded.size,
+                includedAlbums = config.includedAlbumIds.size,
                 total = photos.size,
                 fellBackToAll = fellBack,
                 builtAtMillis = now(),
@@ -150,6 +154,11 @@ class PlaylistRepository(
                     ?: (today().year - 1 downTo FALLBACK_FIRST_YEAR).toList()
                 Modes.onThisDay(today(), years)
             }
+            SlideshowMode.THIS_MONTH -> {
+                val years = timelineMonths(api)?.filter { it.month == today().month }?.let(Modes::yearsWithContent)
+                    ?: (today().year downTo FALLBACK_FIRST_YEAR).toList()
+                Modes.thisMonth(today(), years)
+            }
         }
 
     private suspend fun build(api: ImmichApi, config: SlideshowConfig, ranges: List<DateRange>?, excluded: Set<String>): List<Photo> {
@@ -158,7 +167,12 @@ class PlaylistRepository(
             isFavorite = if (config.favoritesOnly) true else null,
             withExif = true,
         )
-        val candidates = if (ranges == null) {
+        val candidates = if (config.includedAlbumIds.isNotEmpty()) {
+            // Album searches are small, so fetch each included album once and apply the dates here.
+            config.includedAlbumIds.flatMap { albumAssets(api, it, base, displayableOnly = true) }
+                .map { it.toPhoto() }
+                .filter { photo -> ranges == null || photo.localDate()?.let { date -> ranges.any { date in it } } == true }
+        } else if (ranges == null) {
             searchAll(api, base).map { it.toPhoto() }
         } else {
             ranges.flatMap { range ->
@@ -189,16 +203,26 @@ class PlaylistRepository(
     private suspend fun excludedAssetIds(api: ImmichApi, albumIds: Set<String>): Set<String> {
         val ids = HashSet<String>()
         for (albumId in albumIds) {
-            try {
-                searchAll(api, SearchMetadataRequest(albumIds = listOf(albumId)), displayableOnly = false)
-                    .mapTo(ids) { it.id }
-            } catch (e: ImmichException.Http) {
-                if (e.code == 404) continue // Album deleted since it was excluded.
-                // Older servers cannot filter search by album; read the album directly.
-                api.album(albumId).assets.mapTo(ids) { it.id }
-            }
+            albumAssets(api, albumId, SearchMetadataRequest(), displayableOnly = false).mapTo(ids) { it.id }
         }
         return ids
+    }
+
+    /** Assets in [albumId] matching [request]; empty if the album has since been deleted. */
+    private suspend fun albumAssets(
+        api: ImmichApi,
+        albumId: String,
+        request: SearchMetadataRequest,
+        displayableOnly: Boolean,
+    ): List<AssetDto> = try {
+        searchAll(api, request.copy(albumIds = listOf(albumId)), displayableOnly)
+    } catch (e: ImmichException.Http) {
+        if (e.code == 404) {
+            emptyList()
+        } else {
+            // Older servers cannot filter search by album; read the album directly.
+            api.album(albumId).assets.filter { !displayableOnly || it.isDisplayable }
+        }
     }
 
     private var legacySearch = false

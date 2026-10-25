@@ -75,6 +75,7 @@ class PlaylistRepositoryTest {
 
     private fun config(
         vararg excluded: String,
+        included: Set<String> = emptySet(),
         source: SeasonSource = SeasonSource.AUTOMATIC,
         mode: SlideshowMode = SlideshowMode.SEASONAL,
         recentDays: Int = 90,
@@ -82,6 +83,7 @@ class PlaylistRepositoryTest {
         serverUrl = server.url("/").toString(),
         apiKey = "k",
         excludedAlbumIds = excluded.toSet(),
+        includedAlbumIds = included,
         seasonSource = source,
         mode = mode,
         recentDays = recentDays,
@@ -150,6 +152,32 @@ class PlaylistRepositoryTest {
     }
 
     @Test
+    fun `this month picks the calendar month in every year`() = runTest {
+        // Only 2022-10-05 falls in an October.
+        val playlist = repo(LocalDate.of(2026, 10, 25)).refresh(config(mode = SlideshowMode.THIS_MONTH))
+        assertEquals(listOf("spring22"), playlist.photos.map { it.id })
+        assertEquals(1, playlist.stats.years)
+    }
+
+    @Test
+    fun `included albums limit every mode`() = runTest {
+        val seasonal = repo(LocalDate.of(2026, 10, 25)).refresh(config(included = setOf("album-x")))
+        assertEquals(listOf("x-spring23"), seasonal.photos.map { it.id })
+        assertEquals(1, seasonal.stats.includedAlbums)
+        // Dates are applied locally, so there is one search per included album and none per year.
+        assertEquals(1, searches.size)
+
+        val random = repo(LocalDate.of(2026, 10, 25)).refresh(config(included = setOf("album-x"), mode = SlideshowMode.RANDOM))
+        assertEquals(listOf("x-spring23"), random.photos.map { it.id })
+    }
+
+    @Test
+    fun `excluded albums win over included ones`() = runTest {
+        val playlist = repo(LocalDate.of(2026, 10, 25)).refresh(config("album-x", included = setOf("album-x"), mode = SlideshowMode.RANDOM))
+        assertTrue(playlist.photos.isEmpty())
+    }
+
+    @Test
     fun `follows search cursors across pages`() = runTest {
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
@@ -171,6 +199,9 @@ class PlaylistRepositoryTest {
     fun `cache key moves with the day for date-relative modes`() {
         val recent = config(mode = SlideshowMode.RECENT)
         assertNotEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(recent), repo(LocalDate.of(2026, 10, 4)).cacheKey(recent))
+        val month = config(mode = SlideshowMode.THIS_MONTH)
+        assertEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(month), repo(LocalDate.of(2026, 10, 31)).cacheKey(month))
+        assertNotEquals(repo(LocalDate.of(2026, 10, 31)).cacheKey(month), repo(LocalDate.of(2026, 11, 1)).cacheKey(month))
         val random = config(mode = SlideshowMode.RANDOM)
         assertEquals(repo(LocalDate.of(2026, 10, 3)).cacheKey(random), repo(LocalDate.of(2026, 10, 4)).cacheKey(random))
     }
