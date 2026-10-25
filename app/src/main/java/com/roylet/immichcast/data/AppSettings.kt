@@ -52,9 +52,12 @@ class AppSettings(context: Context) {
             favoritesOnly = prefs.getBoolean(K_FAVORITES, d.favoritesOnly),
             order = enumPref(K_ORDER, d.order),
             secondsPerSlide = prefs.getInt(K_SECONDS, d.secondsPerSlide),
+            videoSeconds = prefs.getInt(K_VIDEO_SECONDS, d.videoSeconds),
             transition = enumPref(K_TRANSITION, d.transition),
             quality = enumPref(K_QUALITY, d.quality),
             fit = enumPref(K_FIT, d.fit),
+            lookAround = prefs.getBoolean(K_LOOK_AROUND, d.lookAround),
+            turnSeconds = prefs.getInt(K_TURN_SECONDS, d.turnSeconds),
             overlayItems = prefs.getStringSet(K_OVERLAY, null)
                 ?.mapNotNull { name -> OverlayItem.entries.firstOrNull { it.name == name } }?.toSet()
                 ?: d.overlayItems,
@@ -77,9 +80,12 @@ class AppSettings(context: Context) {
         putBoolean(K_FAVORITES, c.favoritesOnly)
         putString(K_ORDER, c.order.name)
         putInt(K_SECONDS, c.secondsPerSlide)
+        putInt(K_VIDEO_SECONDS, c.videoSeconds)
         putString(K_TRANSITION, c.transition.name)
         putString(K_QUALITY, c.quality.name)
         putString(K_FIT, c.fit.name)
+        putBoolean(K_LOOK_AROUND, c.lookAround)
+        putInt(K_TURN_SECONDS, c.turnSeconds)
         putStringSet(K_OVERLAY, c.overlayItems.map { it.name }.toSet())
         putString(K_OVERLAY_POS, c.overlayPosition.name)
         putString(K_CLOCK, c.clockFormat.name)
@@ -104,9 +110,12 @@ class AppSettings(context: Context) {
         const val K_FAVORITES = "favorites_only"
         const val K_ORDER = "order"
         const val K_SECONDS = "seconds_per_slide"
+        const val K_VIDEO_SECONDS = "video_seconds"
         const val K_TRANSITION = "transition"
         const val K_QUALITY = "quality"
         const val K_FIT = "fit"
+        const val K_LOOK_AROUND = "look_around"
+        const val K_TURN_SECONDS = "turn_seconds"
         const val K_OVERLAY = "overlay_items"
         const val K_OVERLAY_POS = "overlay_position"
         const val K_CLOCK = "clock_format"

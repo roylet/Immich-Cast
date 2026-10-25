@@ -27,10 +27,13 @@ import androidx.compose.material.icons.rounded.PhotoAlbum
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Shuffle
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material.icons.rounded.WifiTethering
+import androidx.compose.material.icons.rounded._360
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -104,6 +107,13 @@ private fun <T> ChoiceRow(
 @Composable
 fun recentLabel(days: Int): String =
     if (days == 365) stringResource(R.string.recent_year) else pluralStringResource(R.plurals.recent_days, days, days)
+
+private fun turnSpeedLabel(seconds: Int): Int = when {
+    seconds >= 60 -> R.string.turn_speed_slow
+    seconds >= 40 -> R.string.turn_speed_medium
+    seconds >= 20 -> R.string.turn_speed_fast
+    else -> R.string.turn_speed_very_fast
+}
 
 @Composable
 fun durationLabel(seconds: Int): String =
@@ -218,6 +228,19 @@ fun LazyListScope.displayPane(config: SlideshowConfig, vm: SettingsViewModel) {
                 label = { durationLabel(it) },
                 onSelect = { v -> vm.update { it.copy(secondsPerSlide = v) } },
             )
+            if (config.mediaFilter == MediaFilter.IMAGES_AND_VIDEOS) {
+                RowDivider()
+                ChoiceRow(
+                    icon = Icons.Rounded.Videocam,
+                    title = stringResource(R.string.setting_video_duration),
+                    description = stringResource(R.string.setting_video_duration_desc),
+                    options = SlideshowConfig.VIDEO_DURATIONS,
+                    selected = config.videoSeconds,
+                    label = { if (it == 0) stringResource(R.string.value_none) else durationLabel(it) },
+                    optionDescription = { if (it == 0) stringResource(R.string.video_duration_none_desc) else null },
+                    onSelect = { v -> vm.update { it.copy(videoSeconds = v) } },
+                )
+            }
             RowDivider()
             ChoiceRow(
                 icon = Icons.Rounded.AutoAwesome,
@@ -250,6 +273,29 @@ fun LazyListScope.displayPane(config: SlideshowConfig, vm: SettingsViewModel) {
                 label = { stringResource(it.labelRes) },
                 onSelect = { v -> vm.update { it.copy(fit = v) } },
             )
+            RowDivider()
+            ChoiceRow(
+                icon = Icons.Rounded._360,
+                title = stringResource(R.string.setting_look_around),
+                description = stringResource(R.string.setting_look_around_desc),
+                options = listOf(true, false),
+                selected = config.lookAround,
+                label = { stringResource(if (it) R.string.look_around_on else R.string.look_around_off) },
+                optionDescription = { stringResource(if (it) R.string.look_around_on_desc else R.string.look_around_off_desc) },
+                onSelect = { v -> vm.update { it.copy(lookAround = v) } },
+            )
+            if (config.lookAround) {
+                RowDivider()
+                ChoiceRow(
+                    icon = Icons.Rounded.Speed,
+                    title = stringResource(R.string.setting_turn_speed),
+                    options = SlideshowConfig.TURN_SPEEDS,
+                    selected = config.turnSeconds,
+                    label = { stringResource(turnSpeedLabel(it)) },
+                    optionDescription = { pluralStringResource(R.plurals.turn_speed_desc, it, it) },
+                    onSelect = { v -> vm.update { it.copy(turnSeconds = v) } },
+                )
+            }
             RowDivider()
             ChoiceRow(
                 icon = Icons.Rounded.BrightnessLow,

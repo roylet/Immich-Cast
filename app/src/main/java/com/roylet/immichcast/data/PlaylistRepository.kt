@@ -78,7 +78,7 @@ class PlaylistRepository(
             SlideshowMode.RECENT, SlideshowMode.ON_THIS_DAY -> today().toString()
             SlideshowMode.RANDOM -> null
         }
-        return "${config.playlistKey}|${moving.orEmpty()}"
+        return "$CACHE_FORMAT|${config.playlistKey}|${moving.orEmpty()}"
     }
 
     /** Cached playlist for this exact configuration and date, regardless of age. */
@@ -276,6 +276,9 @@ class PlaylistRepository(
     companion object {
         private const val TAG = "ImmichCast"
         private const val FALLBACK_FIRST_YEAR = 1990
+
+        /** Bump when [Photo] gains fields, so cached playlists from older versions are rebuilt. */
+        private const val CACHE_FORMAT = "v2"
     }
 }
 

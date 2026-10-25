@@ -47,7 +47,7 @@ It shows photos from the current season across every year in your library: in sp
 - **Included albums.** Pick albums to limit the slideshow to (family, holidays, pets). Every mode then only uses photos from those albums.
 - **Excluded albums.** Pick albums to hide (receipts, screenshots, work), and every photo in them is left out. Exclusions win over inclusions.
 - **Everything configurable.** All of these are set with the remote:
-  - time per photo
+  - time per photo, and a separate limit for videos
   - transition (crossfade, slow zoom, none)
   - image quality (fast previews, or full-quality originals for 4K)
   - fit (blurred background, crop to fill, black bars)
@@ -56,6 +56,7 @@ It shows photos from the current season across every year in your library: in sp
   - favourites only
   - play order
   - overlay contents and position
+- **360° photos and panoramas.** 360° photos and videos are shown from the inside, turning slowly through a full circle. Panoramas fill the screen height and pan from one end to the other. Both stay up for at least 30 seconds, or can be shown flat.
 - **No clutter by default.** The overlay is off. Turn on any of: clock, date taken, location, album name, description, season.
 - **Kind to your TV.** The overlay drifts slightly with each photo and moves to the opposite side every 10 minutes, so it doesn't burn into OLED and plasma screens.
 - **Fast and resilient.** The photo list is cached on the device, so the screensaver starts at once and keeps working through Wi-Fi blips. The next photo is preloaded and decoded before it is shown. Shuffle reshuffles every time the screensaver starts.
@@ -96,9 +97,12 @@ adb shell settings put secure screensaver_components com.roylet.immichcast/.drea
 | Favourites only | On / Off | Off |
 | Play order (not shown for Random) | Shuffle, Oldest first, Newest first | Shuffle |
 | Time per photo | 10 s – 5 min | 30 seconds |
+| Time per video (with videos on) | None (play to the end, up to 2 min), 10 s, 20 s, 30 s, 1 min | None |
 | Transition | Crossfade, Slow zoom, None | Crossfade |
 | Image quality | Standard (~1440 px preview), Full quality (original) | Standard |
 | Image fit | Fit with blurred background, Fill (crop), Fit with black bars | Blurred background |
+| 360° and panoramas | Look around, Show flat | Look around |
+| 360° turn speed | Slow (60 s a turn), Medium (40 s), Fast (20 s), Very fast (12 s) | Fast |
 | Dim | Off – 60% | Off |
 | Overlay | Clock, Date taken, Location, Album name, Description, Season | All off |
 | Overlay position | Any corner | Bottom left |

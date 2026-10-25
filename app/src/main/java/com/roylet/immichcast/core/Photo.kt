@@ -17,4 +17,9 @@ data class Photo(
     val country: String? = null,
     val description: String? = null,
     val durationMs: Long? = null,
+    /** Size as displayed, when Immich knows it. */
+    val width: Int? = null,
+    val height: Int? = null,
+    /** Immich's projection type, e.g. "EQUIRECTANGULAR" for 360° content. */
+    val projection: String? = null,
 )

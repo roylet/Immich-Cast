@@ -31,6 +31,12 @@ data class ExifDto(
     val state: String? = null,
     val country: String? = null,
     val description: String? = null,
+    val exifImageWidth: Int? = null,
+    val exifImageHeight: Int? = null,
+    /** EXIF orientation; Immich has sent it as both a string and a number. */
+    val orientation: JsonPrimitive? = null,
+    /** "EQUIRECTANGULAR" for 360° photos and videos, plus Google's partial panoramas. */
+    val projectionType: String? = null,
 )
 
 @Serializable
@@ -46,6 +52,9 @@ data class AssetDto(
     val visibility: String? = null,
     /** Immich 3+ sends milliseconds; older servers send "H:MM:SS.ffffff". */
     val duration: JsonPrimitive? = null,
+    /** Displayed size, already rotated for orientation (Immich 2+). */
+    val width: Int? = null,
+    val height: Int? = null,
     val exifInfo: ExifDto? = null,
 ) {
     /** Hidden/locked/archived/trashed assets never belong in the slideshow. */
@@ -62,9 +71,23 @@ data class AssetDto(
         country = exifInfo?.country?.takeIf { it.isNotBlank() },
         description = exifInfo?.description?.takeIf { it.isNotBlank() },
         durationMs = parseDurationMs(duration),
+        width = displaySize()?.first,
+        height = displaySize()?.second,
+        projection = exifInfo?.projectionType?.takeIf { it.isNotBlank() }?.uppercase(),
     )
 
+    /** Width and height as shown, from the asset or else from EXIF, turned for 90° orientations. */
+    private fun displaySize(): Pair<Int, Int>? {
+        if (width != null && height != null && width > 0 && height > 0) return width to height
+        val w = exifInfo?.exifImageWidth ?: return null
+        val h = exifInfo.exifImageHeight ?: return null
+        if (w <= 0 || h <= 0) return null
+        return if (exifInfo.orientation?.content in ROTATED_ORIENTATIONS) h to w else w to h
+    }
+
     companion object {
+        private val ROTATED_ORIENTATIONS = setOf("5", "6", "7", "8")
+
         fun parseDurationMs(raw: JsonPrimitive?): Long? {
             if (raw == null) return null
             if (!raw.isString) return raw.longOrNull?.takeIf { it > 0 }

@@ -34,6 +34,7 @@ internal class SlideLayer(context: Context) : FrameLayout(context) {
 
     fun bind(drawable: Drawable?, fit: ImageFit) {
         image.animate().cancel()
+        image.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         image.scaleX = 1f
         image.scaleY = 1f
         image.translationX = 0f
@@ -44,6 +45,16 @@ internal class SlideLayer(context: Context) : FrameLayout(context) {
         backdrop.visibility = if (blurred) View.VISIBLE else View.GONE
         // A separate drawable instance: the backdrop's dimming filter must not touch the photo.
         backdrop.setImageDrawable(if (blurred) drawable?.constantState?.newDrawable(resources)?.mutate() else null)
+    }
+
+    /** A panorama at full screen height, wider than the screen, ready to pan across. */
+    fun bindWide(drawable: Drawable, screenWidth: Int, screenHeight: Int) {
+        bind(drawable, ImageFit.FILL)
+        val width = (drawable.intrinsicWidth.toFloat() * screenHeight / drawable.intrinsicHeight.coerceAtLeast(1)).toInt()
+        image.layoutParams = LayoutParams(width.coerceAtLeast(screenWidth), LayoutParams.MATCH_PARENT)
+        image.scaleType = ImageView.ScaleType.FIT_XY
+        backdrop.visibility = View.GONE
+        backdrop.setImageDrawable(null)
     }
 
     fun clear() {

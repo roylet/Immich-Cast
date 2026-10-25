@@ -104,9 +104,27 @@
     <string name="setting_favorites_desc">Only show photos you have marked as favourite</string>
     <string name="setting_order">Play order</string>
     <string name="setting_duration">Time per photo</string>
+    <string name="setting_video_duration">Time per video</string>
+    <string name="setting_video_duration_desc">Longer videos stop early</string>
+    <string name="video_duration_none_desc">Play each video to the end, up to 2 minutes</string>
     <string name="setting_transition">Transition</string>
     <string name="setting_quality">Image quality</string>
     <string name="setting_fit">Image fit</string>
+    <string name="setting_look_around">360° and panoramas</string>
+    <string name="setting_look_around_desc">Wide and 360° photos stay on screen for at least 30 seconds</string>
+    <string name="look_around_on">Look around</string>
+    <string name="look_around_on_desc">Pan across panoramas and turn slowly through 360° photos and videos</string>
+    <string name="look_around_off">Show flat</string>
+    <string name="setting_turn_speed">360° turn speed</string>
+    <string name="turn_speed_slow">Slow</string>
+    <string name="turn_speed_medium">Medium</string>
+    <string name="turn_speed_fast">Fast</string>
+    <string name="turn_speed_very_fast">Very fast</string>
+    <plurals name="turn_speed_desc">
+        <item quantity="one">One full turn every %d second</item>
+        <item quantity="other">One full turn every %d seconds</item>
+    </plurals>
+    <string name="look_around_off_desc">Show them like any other photo</string>
     <string name="setting_dim">Dim</string>
     <string name="setting_dim_desc">Darken photos, useful at night</string>
     <string name="setting_overlay_position">Position</string>

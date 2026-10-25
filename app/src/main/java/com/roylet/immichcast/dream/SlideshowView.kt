@@ -2,11 +2,13 @@ package com.roylet.immichcast.dream
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
@@ -28,6 +30,7 @@ import androidx.media3.ui.PlayerView
 import com.roylet.immichcast.ImmichCastApp
 import com.roylet.immichcast.R
 import com.roylet.immichcast.core.ImageFit
+import com.roylet.immichcast.core.Panorama
 import com.roylet.immichcast.core.SlideshowConfig
 import com.roylet.immichcast.core.Transition
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +61,10 @@ class SlideshowView(context: Context) : FrameLayout(context) {
         alpha = 0f
     }
     private var player: ExoPlayer? = null
+
+    // Kept behind the photo layers until a 360° slide brings it forward.
+    private val sphere = SphereView(context).apply { alpha = 0f }
+    private var sphereShowing = false
 
     private val overlay = OverlayView(context)
     private val dim = View(context).apply { setBackgroundColor(Color.BLACK); alpha = 0f }
@@ -97,6 +104,7 @@ class SlideshowView(context: Context) : FrameLayout(context) {
 
     init {
         setBackgroundColor(Color.BLACK)
+        addView(sphere, match())
         layers.forEach { addView(it, match()) }
         addView(videoView, match())
         addView(overlay, match())
@@ -121,6 +129,7 @@ class SlideshowView(context: Context) : FrameLayout(context) {
         player?.release()
         player = null
         layers.forEach { it.animate().cancel() }
+        sphere.idle()
     }
 
     override fun onDetachedFromWindow() {
@@ -140,35 +149,90 @@ class SlideshowView(context: Context) : FrameLayout(context) {
     internal val targetWidth: Int get() = width.takeIf { it > 0 } ?: resources.displayMetrics.widthPixels
     internal val targetHeight: Int get() = height.takeIf { it > 0 } ?: resources.displayMetrics.heightPixels
 
-    internal fun showSlide(slide: LoadedSlide, config: SlideshowConfig) {
+    /** Shows [slide] for [durationMs]; panoramas pan and 360° photos turn over that time. */
+    internal fun showSlide(slide: LoadedSlide, config: SlideshowConfig, durationMs: Long) {
+        val fadeMs = if (config.transition == Transition.NONE || !hasShownSlide) 0L else FADE_MS
+        val bitmap = (slide.drawable as? BitmapDrawable)?.bitmap
+        if (slide.kind == Panorama.SPHERE && bitmap != null) {
+            showSphere(bitmap, config.turnSeconds * 1000L, fadeMs)
+        } else {
+            showFlat(slide, config, durationMs, fadeMs)
+        }
+        overlay.setCaption(slide.caption, animate = hasShownSlide)
+        hasShownSlide = true
+        hideMessage()
+    }
+
+    private fun showFlat(slide: LoadedSlide, config: SlideshowConfig, durationMs: Long, fadeMs: Long) {
         val incoming = layers[1 - front]
         val outgoing = layers[front]
         front = 1 - front
 
-        incoming.bind(slide.drawable, config.fit)
+        if (slide.kind == Panorama.WIDE && slide.drawable != null) {
+            incoming.bindWide(slide.drawable, targetWidth, targetHeight)
+        } else {
+            incoming.bind(slide.drawable, config.fit)
+        }
         incoming.bringToFront()
+        bringChromeToFront()
+
+        val leavingSphere = sphereShowing
+        sphereShowing = false
+        val done = {
+            outgoing.alpha = 0f
+            outgoing.clear()
+            if (leavingSphere) {
+                sphere.alpha = 0f
+                sphere.idle()
+            }
+        }
+        if (fadeMs == 0L) {
+            incoming.alpha = 1f
+            done()
+        } else {
+            incoming.alpha = 0f
+            incoming.animate().alpha(1f).setDuration(fadeMs).setInterpolator(DecelerateInterpolator())
+                .withLayer()
+                .withEndAction(done)
+                .start()
+        }
+        when {
+            slide.kind == Panorama.WIDE -> pan(incoming, durationMs + fadeMs)
+            config.transition == Transition.KEN_BURNS -> kenBurns(incoming, durationMs + fadeMs)
+        }
+    }
+
+    private fun showSphere(bitmap: android.graphics.Bitmap, turnMs: Long, fadeMs: Long) {
+        val outgoing = layers[front]
+        sphere.showImage(bitmap, turnMs)
+        if (sphereShowing) return // already on screen: cut straight to the next one
+        sphereShowing = true
+        sphere.bringToFront()
+        bringChromeToFront()
+        sphere.animate().cancel()
+        sphere.alpha = if (fadeMs == 0L) 1f else 0f
+        sphere.animate().alpha(1f).setDuration(fadeMs).setInterpolator(DecelerateInterpolator())
+            .withEndAction { outgoing.alpha = 0f; outgoing.clear() }
+            .start()
+    }
+
+    private fun bringChromeToFront() {
         videoView.bringToFront()
         overlay.bringToFront()
         dim.bringToFront()
         message.bringToFront()
         notice.bringToFront()
+    }
 
-        val fadeMs = if (config.transition == Transition.NONE || !hasShownSlide) 0L else FADE_MS
-        if (fadeMs == 0L) {
-            incoming.alpha = 1f
-            outgoing.alpha = 0f
-            outgoing.clear()
-        } else {
-            incoming.alpha = 0f
-            incoming.animate().alpha(1f).setDuration(fadeMs).setInterpolator(DecelerateInterpolator())
-                .withLayer()
-                .withEndAction { outgoing.alpha = 0f; outgoing.clear() }
-                .start()
+    /** Slides a panorama from one end to the other, in a random direction. */
+    private fun pan(layer: SlideLayer, durationMs: Long) {
+        val travel = (layer.image.layoutParams.width - targetWidth).coerceAtLeast(0).toFloat()
+        val leftToRight = Random.nextBoolean()
+        layer.image.apply {
+            translationX = if (leftToRight) 0f else -travel
+            animate().translationX(if (leftToRight) -travel else 0f)
+                .setDuration(durationMs).setInterpolator(AccelerateDecelerateInterpolator()).start()
         }
-        if (config.transition == Transition.KEN_BURNS) kenBurns(incoming, config.secondsPerSlide * 1000L + fadeMs)
-        overlay.setCaption(slide.caption, animate = hasShownSlide)
-        hasShownSlide = true
-        hideMessage()
     }
 
     private fun kenBurns(layer: SlideLayer, durationMs: Long) {
@@ -187,30 +251,44 @@ class SlideshowView(context: Context) : FrameLayout(context) {
         }
     }
 
-    /** Plays [url] muted over the current slide; returns when it ends, fails, or after [maxMs]. */
-    internal suspend fun playVideo(url: String, fit: ImageFit, maxMs: Long) {
+    /**
+     * Plays [url] muted over the current slide; returns when it ends, fails, or after [maxMs].
+     * With [limitMs], it also stops that long after the first frame, so loading time doesn't count.
+     * With [inSphere], a 360° video plays inside the turning sphere view instead of flat.
+     */
+    internal suspend fun playVideo(url: String, fit: ImageFit, maxMs: Long, limitMs: Long? = null, inSphere: Boolean = false) {
         val exo = player ?: ExoPlayer.Builder(context)
             .setMediaSourceFactory(DefaultMediaSourceFactory(OkHttpDataSource.Factory(app.httpClient)))
             .build().also {
                 it.volume = 0f
                 it.repeatMode = Player.REPEAT_MODE_OFF
                 player = it
-                videoView.player = it
             }
-        videoView.resizeMode = if (fit == ImageFit.FILL) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
-        videoView.visibility = View.VISIBLE
-        videoView.bringToFront()
-        overlay.bringToFront(); dim.bringToFront(); message.bringToFront(); notice.bringToFront()
+        val sphereSurface = if (inSphere && sphereShowing) sphere.videoSurface() else null
+        if (sphereSurface != null) {
+            videoView.player = null
+            exo.setVideoSurface(sphereSurface)
+        } else {
+            videoView.player = exo
+            videoView.resizeMode = if (fit == ImageFit.FILL) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
+            videoView.visibility = View.VISIBLE
+            bringChromeToFront()
+        }
 
         exo.setMediaItem(MediaItem.fromUri(url))
         exo.prepare()
         exo.play()
+        var stopAtLimit: Runnable? = null
         try {
             kotlinx.coroutines.withTimeoutOrNull(maxMs) {
                 suspendCancellableCoroutine { cont ->
                     val listener = object : Player.Listener {
                         override fun onRenderedFirstFrame() {
-                            videoView.animate().alpha(1f).setDuration(FADE_MS).start()
+                            if (sphereSurface == null) videoView.animate().alpha(1f).setDuration(FADE_MS).start()
+                            if (limitMs != null && stopAtLimit == null) {
+                                stopAtLimit = Runnable { if (cont.isActive) cont.resume(Unit) }
+                                    .also { videoView.postDelayed(it, limitMs) }
+                            }
                         }
                         override fun onPlaybackStateChanged(state: Int) {
                             if (state == Player.STATE_ENDED && cont.isActive) cont.resume(Unit)
@@ -224,10 +302,17 @@ class SlideshowView(context: Context) : FrameLayout(context) {
                 }
             }
         } finally {
-            videoView.animate().alpha(0f).setDuration(FADE_MS / 2).withEndAction {
-                videoView.visibility = View.GONE
-            }.start()
-            exo.stop()
+            stopAtLimit?.let(videoView::removeCallbacks)
+            if (sphereSurface != null) {
+                exo.stop()
+                exo.clearVideoSurface(sphereSurface)
+                sphere.stopVideo()
+            } else {
+                videoView.animate().alpha(0f).setDuration(FADE_MS / 2).withEndAction {
+                    videoView.visibility = View.GONE
+                }.start()
+                exo.stop()
+            }
             exo.clearMediaItems()
         }
     }

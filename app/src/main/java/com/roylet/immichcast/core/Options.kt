@@ -57,9 +57,15 @@ data class SlideshowConfig(
     val favoritesOnly: Boolean = false,
     val order: PlaybackOrder = PlaybackOrder.SHUFFLE,
     val secondsPerSlide: Int = DEFAULT_SECONDS_PER_SLIDE,
+    /** Stops each video after this long; 0 plays it to the end. */
+    val videoSeconds: Int = 0,
     val transition: Transition = Transition.CROSSFADE,
     val quality: ImageQuality = ImageQuality.PREVIEW,
     val fit: ImageFit = ImageFit.FIT_BLURRED,
+    /** Pan across wide panoramas and turn slowly through 360° photos and videos, instead of showing them flat. */
+    val lookAround: Boolean = true,
+    /** Seconds for one full turn of a 360° photo or video. */
+    val turnSeconds: Int = DEFAULT_TURN_SECONDS,
     val overlayItems: Set<OverlayItem> = emptySet(),
     val overlayPosition: OverlayPosition = OverlayPosition.BOTTOM_START,
     val clockFormat: ClockFormat = ClockFormat.SYSTEM,
@@ -93,6 +99,9 @@ data class SlideshowConfig(
         const val DEFAULT_RECENT_DAYS = 90
         val RECENT_SPANS = listOf(30, 90, 180, 365)
         val SLIDE_DURATIONS = listOf(10, 15, 20, 30, 45, 60, 120, 300)
+        val VIDEO_DURATIONS = listOf(0, 10, 20, 30, 60)
+        const val DEFAULT_TURN_SECONDS = 20
+        val TURN_SPEEDS = listOf(60, 40, 20, 12)
         val REFRESH_INTERVALS = listOf(6, 12, 24)
         val DIM_LEVELS = listOf(0, 10, 20, 30, 40, 50, 60)
     }
